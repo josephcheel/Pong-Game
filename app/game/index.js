@@ -4,6 +4,11 @@ import Paddle from './Paddle.js';
 import Line from './Line.js';
 import Lights from './lights.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
+/* Variables */
+const centerDistanceToPaddle = 45;
 
 /* Initialize the scene, camera, and renderer */
 const scene = new THREE.Scene();
@@ -14,6 +19,7 @@ const aspect = {
   width: window.innerWidth,
   height: window.innerHeight
 };
+
 const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
 camera.position.set(0, 50, 10);
 camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -28,39 +34,42 @@ document.body.appendChild(renderer.domElement);
 // resizeCanvas();
 
 /* Paddle for the player */
-
-const paddle1 = new Paddle(scene, 25, 0, 0);
+const paddle1 = new Paddle(scene, centerDistanceToPaddle, 0, 0);
 paddle1.castShadow = true;
 
-const paddle2 = new Paddle(scene, -25, 0, 0);
+const paddle2 = new Paddle(scene, -centerDistanceToPaddle, 0, 0);
 paddle2.castShadow = true;
 
 /* Ball for the game */
 const ball = new Ball(scene);
-
-const axesHelper = new THREE.AxesHelper(3)
-scene.add(axesHelper)
-
-
-/**
- * OrbitControls
- */
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enableDamping = true
-
-// const line = new Line(scene, new THREE.Vector3(0, 0, 0), new THREE.Vector3(10, 10, 10));
-
-// Create a plane geometry and material as the floor
-
+ball.position.set(0, 0, 0);
 const planeGeometry = new THREE.BoxGeometry(100, 50, 1);
 const planeMaterial = new THREE.MeshPhongMaterial({ color: 0xf88379 }); // Coral color for the plane
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = - Math.PI / 2; // Rotate the plane to lie flat
 plane.position.y = -2; // Position the plane below the cube
 plane.receiveShadow = true; // Enable shadows for the plane
+plane.renderOrder = 1; // Ensure the plane is rendered first
 scene.add(plane);
 
-// const line = new THREE.Line
+
+const Box = new THREE.BoxGeometry(2, 50.1, 1.1);
+
+const BoxMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+const BoxMesh = new THREE.Mesh(Box, BoxMaterial);
+
+BoxMesh.fron
+BoxMesh.rotation.x = - Math.PI / 2;
+BoxMesh.position.y = -2;
+BoxMesh.renderOrder = 0;
+
+scene.add(BoxMesh);
+
+const axesHelper = new THREE.AxesHelper(10)
+scene.add(axesHelper)
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
 
 const lights = new Lights(scene);
 // Add a directional light source
@@ -185,7 +194,6 @@ function animate() {
   // Update sphere position based on keys
   const deltaTime = clock.getDelta();
   ball.update(deltaTime);
-
   keyHandler();
   PaddleLimits();
   
@@ -193,6 +201,53 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+
+// Create a new FontLoader instance
+const fontLoader = new FontLoader();
+
+// Load the font file
+fontLoader.load('./helvetiker_regular.typeface.json', function(font) {
+  // Create the text geometry with the loaded font
+  const textGeometry = new TextGeometry('GOAL!', {
+    font: font, // Use the loaded font here
+    size: 5,
+    depth: 1,
+    curveSegments: 12, // Optional: Adjusts the smoothness of the text
+  });
+
+  // Create a material for the text
+  const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  // Create a mesh from the text geometry and material
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+  // Optionally, set the position of the text
+  textMesh.position.set(0, 0, 0); // Adjust as needed
+
+  textMesh.lookAt(camera.position);
+  // Add the textMesh to your scene
+  // textMesh.visible = false
+  textMesh.name = 'goalText';
+  textMesh.position.set(-10, 0, 0);
+  textMesh.visible = false;
+  scene.add(textMesh);
+
+});
+
+ball.addEventListener('goal', () => {
+
+  scene.getObjectByName('goalText').visible = true;
+  // textMesh.visible = true;
+  setTimeout(() => {
+    ball.position.set(0, 0, 0);
+    ball.velocity.x *= -1;
+    ball.mesh.visible = true;
+    scene.getObjectByName('goalText').visible = false;
+    
+  }, 2000);
+  console.log('goal');
+  // textMesh.visible = false;
+});
 
 
 window.addEventListener('resize', () => {
