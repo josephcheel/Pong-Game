@@ -6,6 +6,7 @@ import Lights from './lights.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import isColliding from './collision.js';
 
 /* Variables */
 const centerDistanceToPaddle = 45;
@@ -27,7 +28,9 @@ camera.lookAt(new THREE.Vector3(0, 0, 0))
 const renderer = new THREE.WebGLRenderer();
 // const renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio < 2, logarithmicDepthBuffer: true });
 renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setClearColor( 0xffffe0 );
+// renderer.setClearColor( 0xffffe0 );
+renderer.setClearColor(0xc2f1ff);
+// renderer.setClearColor(0xe5f9fe);
 renderer.shadowMap.enabled = true;
 
 document.body.appendChild(renderer.domElement);
@@ -128,11 +131,8 @@ document.addEventListener('keydown', (event) => {
   case 'ArrowDown':
     keys.arrowdown.pressed = true;
     break;
-  case 'Shift':
-    keys.shift.pressed = true;
-    break;
   default:
-    console.log(event.key);
+    // console.log(event.key);
     break;
   }
 });
@@ -151,11 +151,8 @@ document.addEventListener('keyup', (event) => {
   case 'ArrowDown':
     keys.arrowdown.pressed = false;
     break;
-  case 'Shift':
-    keys.shift.pressed = false;
-    break;
   default:
-    console.log(event.key);
+    // console.log(event.key);
     break;
   }
 });
@@ -173,7 +170,6 @@ function keyHandler(event) {
      paddle1.position.z += speedModifier;
    else if (keys.arrowup.pressed)
      paddle1.position.z -= speedModifier;
- 
 }
 
 function PaddleLimits() {
@@ -200,6 +196,22 @@ function animate() {
   // console.log(paddle1.position);
   // console.log(paddle2.position);
   
+
+   // Check for collision
+   if (isColliding(ball.mesh, paddle1.mesh))
+   {
+      ball.velocity.x *= -1;
+      // ball.position.x = (paddle1.position.x + paddle1.size.x) * (ball.velocity.x > 0 ? 1 : -1);
+   
+   }
+   
+   if (isColliding(ball.mesh, paddle2.mesh))
+   {
+      ball.velocity.x *= -1;
+      //  ball.position.x = (paddle2.position.x + paddle2.size.x) * (ball.velocity.x > 0 ? 1 : -1);
+   
+    }
+
   // Render the scene
   renderer.render(scene, camera);
 }
@@ -209,7 +221,7 @@ animate();
 const fontLoader = new FontLoader();
 
 // Load the font file
-fontLoader.load('./helvetiker_regular.typeface.json', function(font) {
+fontLoader.load('./fonts/helvetiker_regular.typeface.json', function(font) {
   // Create the text geometry with the loaded font
   const textGeometry = new TextGeometry('GOAL!', {
     font: font, // Use the loaded font here
@@ -241,11 +253,13 @@ ball.addEventListener('goal', () => {
 
   scene.getObjectByName('goalText').visible = true;
   setTimeout(() => {
-    ball.position.set(0, 0, 0);
     ball.velocity.x *= -1;
+    /* Random Display Direction */
+    ball.velocity.z = 10 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
+    ball.position.set(0, 0, 0);
     scene.getObjectByName('goalText').visible = false;
     ball.mesh.visible = true;
-    
+    console.log('Goal!');
   }, 2000);
 });
 
