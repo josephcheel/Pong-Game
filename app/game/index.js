@@ -196,6 +196,9 @@ function animate() {
   ball.update(deltaTime);
   keyHandler();
   PaddleLimits();
+  // console.log(ball.position);
+  // console.log(paddle1.position);
+  // console.log(paddle2.position);
   
   // Render the scene
   renderer.render(scene, camera);
@@ -237,16 +240,13 @@ fontLoader.load('./helvetiker_regular.typeface.json', function(font) {
 ball.addEventListener('goal', () => {
 
   scene.getObjectByName('goalText').visible = true;
-  // textMesh.visible = true;
   setTimeout(() => {
     ball.position.set(0, 0, 0);
     ball.velocity.x *= -1;
-    ball.mesh.visible = true;
     scene.getObjectByName('goalText').visible = false;
+    ball.mesh.visible = true;
     
   }, 2000);
-  console.log('goal');
-  // textMesh.visible = false;
 });
 
 

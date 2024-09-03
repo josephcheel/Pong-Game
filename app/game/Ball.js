@@ -19,13 +19,6 @@ export default class Ball extends EventDispatcher {
 		this.scene.add(this.mesh);
 	}
 
-	clone() {
-		const ball = new Ball(this.scene)
-		ball.position.copy(this.position)
-		ball.velocity.copy(this.velocity)
-		return ball
-	}
-
 	update(dt) {
 		// calculate displacement
 		const displacement = this.velocity.clone().multiplyScalar(dt);
@@ -38,31 +31,26 @@ export default class Ball extends EventDispatcher {
 		const dz = this.boundaries.y - this.radius - Math.abs(this.mesh.position.z);
 
 		if (dx <= 0) {
-			// console.log('collisione')
-			// FinalPos.x =
-			// 	(this.boundaries.x - this.radius + dx) * Math.sign(this.mesh.position.x)
+		
 			
-
 			this.mesh.visible = false
 			FinalPos.x = 0;
 			FinalPos.z = 0;
-			
 			this.dispatchEvent({ type: 'goal' })
 		}
 
 		if (dz <= 0) {
-			// console.log('collisione')
 			const z = this.mesh.position.z
 			// const message = z > 0 ? 'pc' : 'player'
 			// this.dispatchEvent({ type: 'ongoal', message: message })
 
 			FinalPos.z =
 				(this.boundaries.y - this.radius + dz) * Math.sign(this.mesh.position.z)
-			// FinalPos.set(0, 0, 0)
-
-			this.velocity.x *= -1
-			// this.resetVelocity()
+			this.velocity.z *= -1
 		}
+
+		// const paddle1 = this.scene.getObjectByName('paddle1');
+		// const paddle2 = this.scene.getObjectByName('paddle2');
 		
 		// set new position
 		this.position.copy(FinalPos);
