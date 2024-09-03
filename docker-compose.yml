@@ -1,0 +1,17 @@
+########## SERVICES ##########
+services:
+#### Pong Game ####
+  pong-game:
+    container_name: pong-game
+    build: .
+    image: pong-game-img
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - my-network
+
+########## NETWORK ##########
+networks: 
+  my-network:
+    driver: bridge
