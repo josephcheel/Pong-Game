@@ -24,6 +24,40 @@ export default function isColliding(sphere, box) {
 	const distance = spherePosition.distanceTo(closestPoint);
   
 	// Check if the distance is less than the sphere's radius
+	// console.log('distance and radius: ', distance, closestPoint);
+	// if (closestPoint.x === boxPosition.x + boxSize.x * 0.5 || closestPoint.x === boxPosition.x - boxSize.x * 0.5) {
+	// 	console.log('x');
+	// 	return 1
+	// }
+	// if (closestPoint.y === boxPosition.y + boxSize.y * 0.5) {
+	// 	console.log('y');
+
+	// }
+	// if (closestPoint.z === boxPosition.z + boxSize.z * 0.5 || closestPoint.z === boxPosition.z - boxSize.z * 0.5) {
+	// 	console.log('z');
+	// 	return 2
+	// }
+
+	if (distance < sphere.geometry.parameters.radius)
+	{
+		if (Math.abs(closestPoint.x - (boxPosition.x - boxSize.x * 0.5)) < 0.001) {
+			return 1
+			// collisionSide = 'left';
+		} else if (Math.abs(closestPoint.x - (boxPosition.x + boxSize.x * 0.5)) < 0.001) {
+			// collisionSide = 'right';
+			return 1
+		}
+
+		if (Math.abs(closestPoint.z - (boxPosition.z - boxSize.z * 0.5)) < 0.001) {
+			// collisionSide = 'back';
+			return 2
+		} else if (Math.abs(closestPoint.z - (boxPosition.z + boxSize.z * 0.5)) < 0.001) {
+			// collisionSide = 'front';
+			return 2
+		}
+	}
+	return 0
+
 	return distance < sphere.geometry.parameters.radius;
   }
   

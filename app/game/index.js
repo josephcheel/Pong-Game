@@ -208,19 +208,32 @@ function animate() {
   
 
    // Check for collision
-   if (isColliding(ball.mesh, paddle1.mesh))
+   switch (isColliding(ball.mesh, paddle1.mesh))
    {
+    case 1:
       ball.velocity.x *= -1;
-      // ball.position.x = (paddle1.position.x + paddle1.size.x) * (ball.velocity.x > 0 ? 1 : -1);
-   
-   }
-   
-   if (isColliding(ball.mesh, paddle2.mesh))
+      break;
+    case 2:
+      ball.velocity.z *= -1;
+      break;
+  }
+
+   switch (isColliding(ball.mesh, paddle2.mesh))
    {
-      ball.velocity.x *= -1;
-      //  ball.position.x = (paddle2.position.x + paddle2.size.x) * (ball.velocity.x > 0 ? 1 : -1);
+      case 1:
+        ball.velocity.x *= -1;
+        break;
+      case 2:
+        ball.velocity.z *= -1;
+        break;
+  }
    
-    }
+  //  if (isColliding(ball.mesh, paddle2.mesh))
+  //  {
+  //     ball.velocity.x *= -1;
+  //     //  ball.position.x = (paddle2.position.x + paddle2.size.x) * (ball.velocity.x > 0 ? 1 : -1);
+   
+  //   }
 
   // Render the scene
   renderer.render(scene, camera);
