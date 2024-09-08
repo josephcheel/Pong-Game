@@ -3,13 +3,15 @@ import Ball from './Ball.js';
 import Paddle from './Paddle.js';
 import Line from './Line.js';
 import Lights from './lights.js';
+import Text  from './Text.js';
+import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import isColliding from './collision.js';
-
 /* Variables */
 const centerDistanceToPaddle = 45;
+var score = {player1: 0, player2: 0};
+
 
 /* Initialize the scene, camera, and renderer */
 const scene = new THREE.Scene();
@@ -113,18 +115,20 @@ const keys = {
   },
 };
 
-// function resizeCanvas() {
-  
-// }
-
 document.addEventListener('keydown', (event) => {
   switch (event.key) {
   case 's':
     keys.s.pressed = true;
     break;
+  case 'S':
+    keys.s.pressed = true;
+    break; 
   case 'w':
     keys.w.pressed = true;
     break;
+  case 'W':
+    keys.w.pressed = true;
+    break ;
   case 'ArrowUp':
     keys.arrowup.pressed = true;
     break;
@@ -142,9 +146,15 @@ document.addEventListener('keyup', (event) => {
   case 's':
     keys.s.pressed = false;
     break;
+  case 'S':
+      keys.s.pressed = false;
+      break;
   case 'w':
     keys.w.pressed = false;
     break;
+    case 'W':
+      keys.w.pressed = false;
+      break;
   case 'ArrowUp':
     keys.arrowup.pressed = false;
     break;
@@ -249,9 +259,21 @@ fontLoader.load('./fonts/helvetiker_regular.typeface.json', function(font) {
 
 });
 
-ball.addEventListener('goal', () => {
+// const text = new Text(scene, 'GOAL!', './fonts/helvetiker_regular.typeface.json', 5, 1, 0xffffff, 'goalText', new THREE.Vector3(0, 0, 0), camera.position);
+// text.show();
+
+ball.addEventListener('goal', (from) => {
 
   scene.getObjectByName('goalText').visible = true;
+  if (from.player === 'player1') {
+    score.player1 += 1;
+  }
+  else if (from.player === 'player2') {
+    score.player2 += 1;
+  }
+  
+  document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
+  console.log(score);
   setTimeout(() => {
     ball.velocity.x *= -1;
     /* Random Display Direction */

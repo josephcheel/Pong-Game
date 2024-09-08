@@ -35,8 +35,13 @@ export default class Ball extends EventDispatcher {
 			this.mesh.visible = false
 			FinalPos.x = 0;
 			FinalPos.y = 0;
-			FinalPos.z = 0;		
-			this.dispatchEvent({ type: 'goal'})
+			FinalPos.z = 0;
+			if (this.mesh.position.x > 0) {
+				this.dispatchEvent({ type: 'goal', player: 'player1' })
+			}
+			else {
+				this.dispatchEvent({ type: 'goal', player: 'player2' })
+			}
 		}
 
 		if (dz <= 0) {
