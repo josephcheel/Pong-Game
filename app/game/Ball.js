@@ -1,16 +1,24 @@
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3, EventDispatcher, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial } from 'three';
+import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3, EventDispatcher, MeshStandardMaterial, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial } from 'three';
 
 export default class Ball extends EventDispatcher {
 
 	speed = 50;
-	velocity = new Vector3(1, 0, 0);
+	velocity = new Vector3(0, 0, 0);
 	constructor(scene) {
 		super()
 		this.scene = scene;
 		this.radius = 1;
 		this.geometry = new SphereGeometry(this.radius, 32, 32);
 		
-		this.material = new MeshToonMaterial({ color: 0x2ecc71 });
+		// this.material = new MeshToonMaterial({ color: 0x2ecc71 });
+		this.material = new MeshStandardMaterial({
+			color: 0x2ecc71,
+			roughness: 0.1,
+			metalness: 0.2,
+			emissive: 0x2ecc71,
+			emissiveIntensity: 0.15,
+			transparent: true 
+		  });
 		
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.position = this.mesh.position;
@@ -54,9 +62,6 @@ export default class Ball extends EventDispatcher {
 			this.velocity.z *= -1
 		}
 
-		// const paddle1 = this.scene.getObjectByName('paddle1');
-		// const paddle2 = this.scene.getObjectByName('paddle2');
-		
 		// set new position
 		this.position.copy(FinalPos);
 	}

@@ -22,21 +22,6 @@ export default function isColliding(sphere, box) {
   
 	// Calculate distance between closest point and sphere center
 	const distance = spherePosition.distanceTo(closestPoint);
-  
-	// Check if the distance is less than the sphere's radius
-	// console.log('distance and radius: ', distance, closestPoint);
-	// if (closestPoint.x === boxPosition.x + boxSize.x * 0.5 || closestPoint.x === boxPosition.x - boxSize.x * 0.5) {
-	// 	console.log('x');
-	// 	return 1
-	// }
-	// if (closestPoint.y === boxPosition.y + boxSize.y * 0.5) {
-	// 	console.log('y');
-
-	// }
-	// if (closestPoint.z === boxPosition.z + boxSize.z * 0.5 || closestPoint.z === boxPosition.z - boxSize.z * 0.5) {
-	// 	console.log('z');
-	// 	return 2
-	// }
 
 	if (distance < sphere.geometry.parameters.radius)
 	{

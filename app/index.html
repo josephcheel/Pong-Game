@@ -4,33 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pong</title>
-   <style>
-	body { margin: 0; }
-	canvas { display: block; }
-    #score {
-      display: flexbox;
-            /* justify-content: center; */
-            /* align-items: center; */
-            margin-top: 6%;
-            margin-left: 22%;
-            margin-right: 20%;
-            position: absolute;
-            font-family:monospace;
-    }
-    header {
-  
-            /* display: flexbox; */
-            justify-content: center;
-            align-items: center;
-            margin-left: 20%;
-            margin-right: 20%;
-    }
-	  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1 id="score">Score 0 - 0 </h1>
   </header>
-  <script type="module" src="./game/index.js" ></script>
+  <section> 
+    <div id="countdown-container">
+    <h1 id="countdown">3</h1>
+  </div>
+  <div id="left-keys">
+    <h2 class="keys">W</h2>
+    <h2 class="keys">S</h2>
+  </div>
+  <div id="right-keys">
+    <h2 class="keys">↑</h2>
+    <h2 class="keys">↓</h2>
+  </div>
+</section>
+<script type="module" src="./game/index.js" ></script>
 </body>
 </html>
