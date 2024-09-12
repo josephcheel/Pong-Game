@@ -11,6 +11,7 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 const centerDistanceToPaddle = 45;
 var score = {player1: 0, player2: 0};
 var start = false;
+var MaxGoals = 5;
 /* Initialize the scene, camera, and renderer */
 const scene = new THREE.Scene();
 
@@ -192,8 +193,10 @@ function PaddleLimits() {
     paddle2.position.z = -22;
 }
 
+let animationFrameIdanimate;
+
 function animate() {
-  requestAnimationFrame(animate);
+  animationFrameIdanimate = requestAnimationFrame(animate);
  
   // Update sphere position based on keys
   const deltaTime = clock.getDelta();
@@ -252,7 +255,7 @@ async function startCountdown() {
   document.getElementById('left-keys').hidden = true;
 }
 
-if (!start) {
+async function startGame() {
   animationBeforeGame();
   await startCountdown();
   document.getElementById('right-keys').hidden = true;
@@ -262,12 +265,15 @@ if (!start) {
   ball.velocity = new THREE.Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(ball.speed);
   cancelAnimationFrame(animationFrameId);
   start = true;
-  
 }
 
-animate();
 
-// Create a new FontLoader instance
+if (!start) {
+  startGame();
+}
+  animate();
+
+  // Create a new FontLoader instance
 const fontLoader = new FontLoader();
 
 // Load the font file
@@ -312,17 +318,31 @@ ball.addEventListener('goal', (from) => {
     score.player2 += 1;
   }
   
+  function restart()
+  {
+    location.reload();
+  }
+
   document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
   console.log(score);
-  setTimeout(() => {
-    ball.velocity.x *= -1;
-    /* Random Display Direction */
-    ball.velocity.z = 10 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
-    ball.position.set(0, 0, 0);
-    scene.getObjectByName('goalText').visible = false;
-    ball.mesh.visible = true;
-    console.log('Goal!');
-
-  }, 2000);
+ 
+  if (score.player1 === MaxGoals || score.player2 === MaxGoals){
+    document.getElementById('score').textContent = `End of the game!`;
+    setTimeout(() => {
+      location.reload();
+    }, 2000);
+  }
+  else {
+    setTimeout(() => {
+      ball.velocity.x *= -1;
+      /* Random Display Direction */
+      ball.velocity.z = 10 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
+      ball.position.set(0, 0, 0);
+      scene.getObjectByName('goalText').visible = false;
+      ball.mesh.visible = true;
+      console.log('Goal!');
+    
+    }, 2000);
+  }
 });
 
