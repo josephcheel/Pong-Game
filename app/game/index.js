@@ -3,7 +3,6 @@ import Ball from './Ball.js';
 import Paddle from './Paddle.js';
 import Line from './Line.js';
 import Lights from './lights.js';
-// import Text  from './Text.js';
 import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
