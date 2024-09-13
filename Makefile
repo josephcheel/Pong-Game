@@ -21,17 +21,17 @@ all: up
 
 up:
 	@echo "$(OK_COLOR)Docker compose up [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) up -d
+	@docker compose -f $(DOCKER_COMPOSE) up -d
 	
 down-all:
 	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) down -v --remove-orphans --rmi all
+	@docker compose -f $(DOCKER_COMPOSE) down -v --remove-orphans --rmi all
 down:
 	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) down -v
+	@docker  compose -f $(DOCKER_COMPOSE) down -v
 
 re-img:
-	@docker-compose -f $(DOCKER_COMPOSE) up -d --build
+	@docker compose -f $(DOCKER_COMPOSE) up -d --build
 
 clean-cache:
 	@echo "$(ERROR_COLOR)Cleaning Docker cache$(NO_COLOR)"
