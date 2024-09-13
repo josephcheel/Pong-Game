@@ -55,12 +55,6 @@ var balls = [];
 var positions = [];
 const centerDistanceToPaddle = 45;
 
-function startGame()
-{
-    
-    return { players: players };
-}
-
 io.on("connection", (socket) => {
     
     
@@ -80,6 +74,12 @@ io.on("connection", (socket) => {
         balls[socket.id] = new Ball(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
         socket.emit('startGame', { positions, balls: balls });
     }
+    else
+    {
+        socket.emit('gameFull');
+    }
+    // socket.emit('updatePositions', positions, balls);
+
 
     players.push(socket.id);
 
