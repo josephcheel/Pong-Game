@@ -6,7 +6,6 @@ socket.on('connect', () => {
 	console.log('Connected to server');
 	socket.emit('chat message', 'Hello from client');
 	io.on('startGame', () => {
+		console.log('Game started');
 	});
-
 });
-
