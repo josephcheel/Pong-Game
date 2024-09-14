@@ -80,31 +80,20 @@ io.on("connection", (socket) => {
         players[socket.id].isWaiting = true;
         
         socket.join(players[socket.id].room);
-        // positions[socket.id] = players[socket.id].position;
-
-        // console.log('Position:', positions);
         console.log('Player:', players[socket.id].position);
-        // console.log('Player length:', players.length);
+
     }
     else if (Object.keys(players).length % 2 !== 0)
     {
         players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2);
         players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
       
-      
-        positions[socket.id] = players[socket.id].position;
         balls[socket.id] = new Ball(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
-        // players[socket.id].room = crypto.randomUUID();
         let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
         players[socket.id].room = players[KeyPlayer1].room;
         players[KeyPlayer1].isWaiting = false;
-        // players[KeyPlayer1].room = players[socket.id].room;
-
-        console.log('PLAYERS:', players);
-
+    
         socket.join(players[socket.id].room);
-        console.log('Position: ', positions);
-        console.log('Player: ', players[socket.id].position);
     }
     else
     {
