@@ -7,6 +7,7 @@ import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
 /* Variables */
 const centerDistanceToPaddle = 45;
 var score = {player1: 0, player2: 0};
@@ -38,10 +39,11 @@ document.body.appendChild(renderer.domElement);
 // resizeCanvas();
 
 /* Paddle for the player */
-const paddle1 = new Paddle(scene, centerDistanceToPaddle, 0, 0);
+export const paddle1 = new Paddle(scene, centerDistanceToPaddle, 0, 0);
 paddle1.castShadow = true;
 
-const paddle2 = new Paddle(scene, -centerDistanceToPaddle, 0, 0);
+
+export const paddle2 = new Paddle(scene, -centerDistanceToPaddle, 0, 0);
 paddle2.castShadow = true;
 
 /* Ball for the game */
@@ -83,81 +85,81 @@ controls.enableDamping = true
 
 const lights = new Lights(scene);
 
-const keys = {
-  a: {
-    pressed: false,
-  },
-  d: {
-    pressed: false,
-  },
-  arrowup: {
-    pressed: false,
-  },
-  arrowdown: {
-    pressed: false,
-  },
-  s: {
-    pressed: false,
-  },
-  w: {
-    pressed: false,
-  },
-  shift: {
-    pressed: false,
-  },
-};
+// const keys = {
+//   a: {
+//     pressed: false,
+//   },
+//   d: {
+//     pressed: false,
+//   },
+//   arrowup: {
+//     pressed: false,
+//   },
+//   arrowdown: {
+//     pressed: false,
+//   },
+//   s: {
+//     pressed: false,
+//   },
+//   w: {
+//     pressed: false,
+//   },
+//   shift: {
+//     pressed: false,
+//   },
+// };
 
-document.addEventListener('keydown', (event) => {
-  switch (event.key) {
-  case 's':
-    keys.s.pressed = true;
-    break;
-  case 'S':
-    keys.s.pressed = true;
-    break; 
-  case 'w':
-    keys.w.pressed = true;
-    break;
-  case 'W':
-    keys.w.pressed = true;
-    break ;
-  case 'ArrowUp':
-    keys.arrowup.pressed = true;
-    break;
-  case 'ArrowDown':
-    keys.arrowdown.pressed = true;
-    break;
-  default:
-    // console.log(event.key);
-    break;
-  }
-});
+// document.addEventListener('keydown', (event) => {
+//   switch (event.key) {
+//   case 's':
+//     keys.s.pressed = true;
+//     break;
+//   case 'S':
+//     keys.s.pressed = true;
+//     break; 
+//   case 'w':
+//     keys.w.pressed = true;
+//     break;
+//   case 'W':
+//     keys.w.pressed = true;
+//     break ;
+//   case 'ArrowUp':
+//     keys.arrowup.pressed = true;
+//     break;
+//   case 'ArrowDown':
+//     keys.arrowdown.pressed = true;
+//     break;
+//   default:
+//     // console.log(event.key);
+//     break;
+//   }
+// });
 
-document.addEventListener('keyup', (event) => {
-  switch (event.key) {
-  case 's':
-    keys.s.pressed = false;
-    break;
-  case 'S':
-      keys.s.pressed = false;
-      break;
-  case 'w':
-    keys.w.pressed = false;
-    break;
-    case 'W':
-      keys.w.pressed = false;
-      break;
-  case 'ArrowUp':
-    keys.arrowup.pressed = false;
-    break;
-  case 'ArrowDown':
-    keys.arrowdown.pressed = false;
-    break;
-  default:
-    // console.log(event.key);
-    break;
-  }
-});
+// document.addEventListener('keyup', (event) => {
+//   switch (event.key) {
+//   case 's':
+//     keys.s.pressed = false;
+//     break;
+//   case 'S':
+//       keys.s.pressed = false;
+//       break;
+//   case 'w':
+//     keys.w.pressed = false;
+//     break;
+//     case 'W':
+//       keys.w.pressed = false;
+//       break;
+//   case 'ArrowUp':
+//     keys.arrowup.pressed = false;
+//     break;
+//   case 'ArrowDown':
+//     keys.arrowdown.pressed = false;
+//     break;
+//   default:
+//     // console.log(event.key);
+//     break;
+//   }
+// });
 
 
 window.addEventListener('resize', () => {
@@ -168,30 +170,30 @@ window.addEventListener('resize', () => {
 
 const clock = new THREE.Clock();
 
-function keyHandler(event) {
-  let speedModifier = 0.9;
-  if (keys.s.pressed)
-     paddle2.position.z +=  speedModifier; 
-   else if (keys.w.pressed)
-     paddle2.position.z -=  speedModifier;
+// function keyHandler(event) {
+//   let speedModifier = 0.9;
+//   if (keys.s.pressed)
+//      paddle2.position.z +=  speedModifier; 
+//    else if (keys.w.pressed)
+//      paddle2.position.z -=  speedModifier;
  
-   if (keys.arrowdown.pressed)
-     paddle1.position.z += speedModifier;
-   else if (keys.arrowup.pressed)
-     paddle1.position.z -= speedModifier;
-}
+//    if (keys.arrowdown.pressed)
+//      paddle1.position.z += speedModifier;
+//    else if (keys.arrowup.pressed)
+//      paddle1.position.z -= speedModifier;
+// }
 
-function PaddleLimits() {
-  if (paddle1.position.z > 22)
-    paddle1.position.z = 22;
-  else if (paddle1.position.z < -22)
-    paddle1.position.z = -22;
+// function PaddleLimits() {
+//   if (paddle1.position.z > 22)
+//     paddle1.position.z = 22;
+//   else if (paddle1.position.z < -22)
+//     paddle1.position.z = -22;
 
-  if (paddle2.position.z > 22)
-    paddle2.position.z = 22;
-  else if (paddle2.position.z < -22)
-    paddle2.position.z = -22;
-}
+//   if (paddle2.position.z > 22)
+//     paddle2.position.z = 22;
+//   else if (paddle2.position.z < -22)
+//     paddle2.position.z = -22;
+// }
 
 let animationFrameIdanimate;
 
@@ -199,33 +201,34 @@ function animate() {
   animationFrameIdanimate = requestAnimationFrame(animate);
  
   // Update sphere position based on keys
-  const deltaTime = clock.getDelta();
-  ball.update(deltaTime);
-  keyHandler();
-  PaddleLimits();
+  // const deltaTime = clock.getDelta();
+  // ball.update(deltaTime);
+  // keyHandler();
+  // PaddleLimits();
 
-   // Check for collision
-   switch (isColliding(ball.mesh, paddle1.mesh))
-   {
-    case 1:
-      ball.velocity.x *= -1;
-      break;
-    case 2:
-      ball.velocity.z *= -1;
-      break;
+  //  Check for collision
+  //  switch (isColliding(ball.mesh, paddle1.mesh))
+  //  {
+  //   case 1:
+  //     ball.velocity.x *= -1;
+  //     break;
+  //   case 2:
+  //     ball.velocity.z *= -1;
+  //     break;
     
-  }
+  // }
 
-   switch (isColliding(ball.mesh, paddle2.mesh))
-   {
-      case 1:
-        ball.velocity.x *= -1;
-        break;
-      case 2:
-        ball.velocity.z *= -1;
-        break;
-  }
+  //  switch (isColliding(ball.mesh, paddle2.mesh))
+  //  {
+  //     case 1:
+  //       ball.velocity.x *= -1;
+  //       break;
+  //     case 2:
+  //       ball.velocity.z *= -1;
+  //       break;
+  // }
   // Render the scene
+  // paddle1.position.z = 20
   renderer.render(scene, camera);
 }
 
@@ -239,8 +242,8 @@ const sleep = async (ms)  => {
 let animationFrameId;
 function animationBeforeGame() {
   animationFrameId = requestAnimationFrame(animationBeforeGame);
-  keyHandler();
-  PaddleLimits();
+  // keyHandler();
+  // PaddleLimits();
   renderer.render(scene, camera);
 }
 async function startCountdown() {
@@ -341,8 +344,19 @@ ball.addEventListener('goal', (from) => {
       scene.getObjectByName('goalText').visible = false;
       ball.mesh.visible = true;
       console.log('Goal!');
-    
     }, 2000);
   }
 });
 
+export function updatePaddlePosition(player)
+{
+    if (player.nb === 1 && paddle1 && start)
+    {
+        paddle1.position.z = player.z;
+    }
+    else if (player.nb === 2 && paddle2 && start)
+    {
+        paddle2.position.z = player.z;
+    }
+
+}
