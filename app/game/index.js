@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import Ball from './Ball.js';
 import Paddle from './Paddle.js';
-import Line from './Line.js';
 import Lights from './lights.js';
 import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { keys, userInput } from './userInput.js';
+import Text from './Text.js';
 /* Variables */
 const centerDistanceToPaddle = 45;
 var score = {player1: 0, player2: 0};
 var start = false;
 var MaxGoals = 5;
+
 /* Initialize the scene, camera, and renderer */
 const scene = new THREE.Scene();
 
@@ -27,15 +27,11 @@ camera.position.set(0, 50, 10);
 camera.lookAt(new THREE.Vector3(0, 0, 0))
 
 const renderer = new THREE.WebGLRenderer();
-// const renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio < 2, logarithmicDepthBuffer: true });
-renderer.setSize( window.innerWidth, window.innerHeight );
-// renderer.setClearColor( 0xffffe0 );
-renderer.setClearColor(0xc2f1ff);
-// renderer.setClearColor(0xe5f9fe);
-renderer.shadowMap.enabled = true;
 
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor(0xc2f1ff);
+renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
-// resizeCanvas();
 
 /* Paddle for the player */
 const paddle1 = new Paddle(scene, centerDistanceToPaddle, 0, 0);
@@ -48,22 +44,19 @@ paddle2.castShadow = true;
 const ball = new Ball(scene);
 ball.position.set(0, 0, 0);
 const planeGeometry = new THREE.BoxGeometry(100, 50, 1);
-// const planeMaterial = new THREE.MeshPhongMaterial({ color: 0xf88379 }); // Coral color for the plane
 const planeMaterial = new THREE.MeshStandardMaterial({
   color: 0xf88379,
   roughness: 0.4,
-  metalness: 0.3,
+  metalness: 0.25,
   emissive: 0xf88379,
-  emissiveIntensity: 0.15,
-  transparent: true 
+  emissiveIntensity: 0.1,
   });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = - Math.PI / 2; // Rotate the plane to lie flat
-plane.position.y = -2; // Position the plane below the cube
-plane.receiveShadow = true; // Enable shadows for the plane
-plane.renderOrder = 1; // Ensure the plane is rendered first
-scene.add(plane);
 
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = - Math.PI / 2;
+plane.position.y = -2;
+plane.receiveShadow = true;
+scene.add(plane);
 
 const Box = new THREE.BoxGeometry(2, 50.1, 1.1);
 
@@ -75,90 +68,12 @@ BoxMesh.position.y = -2;
 BoxMesh.renderOrder = 0;
 scene.add(BoxMesh);
 
-// const axesHelper = new THREE.AxesHelper(10)
-// scene.add(axesHelper)
-
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 
 const lights = new Lights(scene);
 
-const keys = {
-  a: {
-    pressed: false,
-  },
-  d: {
-    pressed: false,
-  },
-  arrowup: {
-    pressed: false,
-  },
-  arrowdown: {
-    pressed: false,
-  },
-  s: {
-    pressed: false,
-  },
-  w: {
-    pressed: false,
-  },
-  shift: {
-    pressed: false,
-  },
-};
-
-document.addEventListener('keydown', (event) => {
-  switch (event.key) {
-  case 's':
-    keys.s.pressed = true;
-    break;
-  case 'S':
-    keys.s.pressed = true;
-    break; 
-  case 'w':
-    keys.w.pressed = true;
-    break;
-  case 'W':
-    keys.w.pressed = true;
-    break ;
-  case 'ArrowUp':
-    keys.arrowup.pressed = true;
-    break;
-  case 'ArrowDown':
-    keys.arrowdown.pressed = true;
-    break;
-  default:
-    // console.log(event.key);
-    break;
-  }
-});
-
-document.addEventListener('keyup', (event) => {
-  switch (event.key) {
-  case 's':
-    keys.s.pressed = false;
-    break;
-  case 'S':
-      keys.s.pressed = false;
-      break;
-  case 'w':
-    keys.w.pressed = false;
-    break;
-    case 'W':
-      keys.w.pressed = false;
-      break;
-  case 'ArrowUp':
-    keys.arrowup.pressed = false;
-    break;
-  case 'ArrowDown':
-    keys.arrowdown.pressed = false;
-    break;
-  default:
-    // console.log(event.key);
-    break;
-  }
-});
-
+userInput();
 
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -171,14 +86,25 @@ const clock = new THREE.Clock();
 function keyHandler(event) {
   let speedModifier = 0.9;
   if (keys.s.pressed)
-     paddle2.position.z +=  speedModifier; 
-   else if (keys.w.pressed)
-     paddle2.position.z -=  speedModifier;
- 
-   if (keys.arrowdown.pressed)
-     paddle1.position.z += speedModifier;
-   else if (keys.arrowup.pressed)
-     paddle1.position.z -= speedModifier;
+  {
+      paddle2.position.z +=  speedModifier; 
+      // paddle2.velocity.x = -speedModifier * 10;
+  }
+  else if (keys.w.pressed)
+  {
+    paddle2.position.z -=  speedModifier;
+    // paddle2.velocity.x = -speedModifier * 10;
+  }
+  if (keys.arrowdown.pressed)
+  {
+    paddle1.position.z += speedModifier;
+    // paddle1.velocity.x = -speedModifier * 10;
+  }
+  else if (keys.arrowup.pressed)
+  { 
+    paddle1.position.z -= speedModifier;
+    // paddle1.velocity.x = speedModifier * 10
+  }
 }
 
 function PaddleLimits() {
@@ -204,7 +130,7 @@ function animate() {
   keyHandler();
   PaddleLimits();
 
-   // Check for collision
+  //  Check for collision
    switch (isColliding(ball.mesh, paddle1.mesh))
    {
     case 1:
@@ -225,6 +151,9 @@ function animate() {
         ball.velocity.z *= -1;
         break;
   }
+  
+  // handleCollision(ball, paddle1);
+  // handleCollision(ball, paddle2);
   // Render the scene
   renderer.render(scene, camera);
 }
@@ -271,65 +200,40 @@ async function startGame() {
 if (!start) {
   startGame();
 }
-  animate();
 
-  // Create a new FontLoader instance
-const fontLoader = new FontLoader();
+animate();
 
-// Load the font file
-fontLoader.load('./fonts/helvetiker_regular.typeface.json', function(font) {
-  // Create the text geometry with the loaded font
-  const textGeometry = new TextGeometry('GOAL!', {
-    font: font, // Use the loaded font here
-    size: 5,
-    depth: 1,
-    curveSegments: 12, // Optional: Adjusts the smoothness of the text
-  });
+const text = new Text(scene, 'GOAL!', './fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new THREE.Vector3(2, 0, 0), camera.position);
+const endText = new Text(scene, 'END', './fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new THREE.Vector3(5, 0, 0), camera.position);
 
-  // Create a material for the text
-  const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+function restart()
+{
+  location.reload();
+}
 
-  // Create a mesh from the text geometry and material
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-  // Optionally, set the position of the text
-  textMesh.position.set(0, 0, 0); // Adjust as needed
-
-  textMesh.lookAt(camera.position);
-  // Add the textMesh to your scene
-  // textMesh.visible = false
-  textMesh.name = 'goalText';
-  textMesh.position.set(-10, 0, 0);
-  textMesh.visible = false;
-  scene.add(textMesh);
-
-});
-
-// const text = new Text(scene, 'GOAL!', './fonts/helvetiker_regular.typeface.json', 5, 1, 0xffffff, 'goalText', new THREE.Vector3(0, 0, 0), camera.position);
-// text.show();
-
-ball.addEventListener('goal', (from) => {
-
-  scene.getObjectByName('goalText').visible = true;
+function updateScore(from)
+{
   if (from.player === 'player1') {
     score.player1 += 1;
   }
   else if (from.player === 'player2') {
     score.player2 += 1;
   }
-  
-  function restart()
-  {
-    location.reload();
-  }
-
   document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
   console.log(score);
- 
+}
+
+ball.addEventListener('goal', (from) => {
+
+  text.show();
+  updateScore(from);
+  
   if (score.player1 === MaxGoals || score.player2 === MaxGoals){
     document.getElementById('score').textContent = `End of the game!`;
+    text.hide();
+    endText.show();
     setTimeout(() => {
-      location.reload();
+      restart();
     }, 2000);
   }
   else {
@@ -338,7 +242,7 @@ ball.addEventListener('goal', (from) => {
       /* Random Display Direction */
       ball.velocity.z = 10 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
       ball.position.set(0, 0, 0);
-      scene.getObjectByName('goalText').visible = false;
+      text.hide();
       ball.mesh.visible = true;
       console.log('Goal!');
     

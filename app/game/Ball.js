@@ -23,6 +23,8 @@ export default class Ball extends EventDispatcher {
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.position = this.mesh.position;
 
+		this.mesh.castShadow = true;
+		this.receiveShadow = true;
 		this.velocity.multiplyScalar(this.speed);
 		this.scene.add(this.mesh);
 		// this.objSphere = new SphereGeometry().setFromObject(this.mesh);
