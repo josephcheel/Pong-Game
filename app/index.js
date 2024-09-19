@@ -116,14 +116,20 @@ function GameLoop()
 io.on("connection", (socket) => {
     console.log('New Connection');
     
+    // const query = socket.handshake.query;
+    // console.log('Query:', query);
     const cookiesHeader = socket.handshake.headers.cookie;
-   
-    const cookies = cookie.parse(cookiesHeader);
+    if (cookiesHeader === 'string' )//&& cookiesHeader.includes('roomId'))
+    {
+        const cookies = cookie.parse(cookiesHeader);
+
     
-    if (cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId) )//&& io.sockets.adapter.rooms.get(cookies.roomId).size < 2) TOO BLOCK JUST TWO PLAYERS BY ROOM
-    { 
-        // console.log('RoomId:', cookies.roomId);
-        socket.join(cookies.roomId);
+        if (cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId) && io.sockets.adapter.rooms.get(cookies.roomId).size < 2) //TOO BLOCK JUST TWO PLAYERS BY ROOM
+        { 
+            console.log('RoomId:', cookies.roomId, 'socketId:', socket.id);
+            socket.join(cookies.roomId);
+
+        }
     }
     else if (Object.keys(players).length % 2 === 0)
     {
@@ -172,10 +178,7 @@ io.on("connection", (socket) => {
         {
             players[socket.id].up = userInput.up;
             players[socket.id].down = userInput.down;
-        }
-            // console.log('UserInput:', userInput.up);
-        // console.log('UserInput:', userInput.down);
-        
+        }     
     });
     // for (let id in balls)
     // {
@@ -183,7 +186,17 @@ io.on("connection", (socket) => {
     // }
     // socket.emit('updatePositions', positions, balls);
 
+    socket.on('disconnect', () => {
+        console.log('Disconnected:', socket.id);
+        players[socket.id].id = undefined;
+    });
 });
+
+// io.on('disconnect', (socket) => {
+//     console.log('Disconnected:', socket.id);
+//     delete players[socket.id];
+// });
+
 setInterval(GameLoop, 1000/60);
 
 app.use(cookieParser());

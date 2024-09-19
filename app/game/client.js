@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { updatePaddlePosition, paddle1, paddle2} from './index.js';
+import { updatePaddlePosition, startGame } from './index.js';
 const socket = io('ws://localhost:4000');
 
 var PlayerNb = undefined; 
@@ -41,11 +41,12 @@ socket.on('connect', () => {
 	});
 	
 	socket.on('startGame', (data) => {
-		if (data.player1.id === socket.id) {
-			PlayerNb = 1;
-		}
-		else
-			PlayerNb = 2;
+		// if (data.player1.id === socket.id) {
+		// 	PlayerNb = 1;
+		// }
+		// else
+		// 	PlayerNb = 2;
+		startGame();
 		
 		console.log('Game has started');
 		console.log(PlayerNb);

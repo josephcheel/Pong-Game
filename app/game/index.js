@@ -247,6 +247,7 @@ function animationBeforeGame() {
   renderer.render(scene, camera);
 }
 async function startCountdown() {
+  document.getElementById('countdown-container').style.visibility = 'visible';
   await sleep(1000);
   document.getElementById('countdown').textContent = '2';
   await sleep(1000);
@@ -258,7 +259,7 @@ async function startCountdown() {
   document.getElementById('left-keys').hidden = true;
 }
 
-async function startGame() {
+export async function startGame() {
   animationBeforeGame();
   await startCountdown();
   document.getElementById('right-keys').hidden = true;
@@ -271,10 +272,12 @@ async function startGame() {
 }
 
 
-if (!start) {
-  startGame();
-}
+// if (!start) {
+//   startGame();
+// }
+if (start) {
   animate();
+}
 
   // Create a new FontLoader instance
 const fontLoader = new FontLoader();
