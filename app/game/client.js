@@ -110,5 +110,14 @@ socket.on('connect', () => {
 		socket.emit('userInput', { down: keys.s.pressed, up: keys.w.pressed });
 	});
 	
+	
+		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
+			socket.emit('userInput', { down: true, up: false });
+		});
+	  
+		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			socket.emit('userInput', { down: false, up: true });
+		});
+		
 });
 

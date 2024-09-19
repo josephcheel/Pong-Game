@@ -117,8 +117,8 @@ io.on("connection", (socket) => {
     console.log('New Connection');
     
     const cookiesHeader = socket.handshake.headers.cookie;
+   
     const cookies = cookie.parse(cookiesHeader);
-
     
     if (cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId) )//&& io.sockets.adapter.rooms.get(cookies.roomId).size < 2) TOO BLOCK JUST TWO PLAYERS BY ROOM
     { 
@@ -156,7 +156,13 @@ io.on("connection", (socket) => {
         io.to(players[socket.id].room).emit('set-cookie', {
             name: 'roomId',
             value: players[socket.id].room,
-            options: { path: '/', expires: new Date(Date.now() + 900000).toUTCString() } // Set expiration, path, etc.
+            options: { 
+                path: '/', 
+                expires: new Date(Date.now() + 900000).toUTCString(),
+                // httpOnly: true, // Optional, helps with security
+                // sameSite: 'None', // Required for cross-site cookies
+                // secure: true // Required for SameSite=None
+            } // Set expiration, path, etc.
         });
         io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
     }
@@ -182,13 +188,20 @@ setInterval(GameLoop, 1000/60);
 
 app.use(cookieParser());
 
+// app.use((req, res, next) => {
+//     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+//     res.setHeader('Pragma', 'no-cache');
+//     res.setHeader('Expires', '0');
+//     next();
+// });
+
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
 });
 

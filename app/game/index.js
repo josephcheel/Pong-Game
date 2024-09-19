@@ -360,3 +360,9 @@ export function updatePaddlePosition(player)
     }
 
 }
+
+
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+  document.getElementById('up-mobile-button').style.visibility = 'visible';
+  document.getElementById('down-mobile-button').style.visibility = 'visible';
+}
