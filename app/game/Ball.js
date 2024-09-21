@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3, EventDispatcher, MeshStandardMaterial, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial } from 'three';
+import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3, EventDispatcher, MeshStandardMaterial, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial, TextureLoader, RepeatWrapping, EquirectangularReflectionMapping, DoubleSide} from 'three';
 
 export default class Ball extends EventDispatcher {
 
@@ -11,15 +11,25 @@ export default class Ball extends EventDispatcher {
 		this.geometry = new SphereGeometry(this.radius, 32, 32);
 		
 		// this.material = new MeshToonMaterial({ color: 0x2ecc71 });
+		const textureLoader = new TextureLoader();
+		const colorMapTexture = textureLoader.load('./gr.png', function (texture) {
+			texture.mapping = EquirectangularReflectionMapping;
+			// texture.wrapS = RepeatWrapping;
+			// texture.wrapT = RepeatWrapping;
+			texture.repeat.set(1, 1);  // Set how many times the texture repeats across the sphere
+		  });
 		this.material = new MeshStandardMaterial({
-			color: 0x2ecc71,
+			// color: 0x2ecc71,
 			roughness: 0.1,
 			metalness: 0.2,
 			emissive: 0x2ecc71,
 			emissiveIntensity: 0.15,
-			transparent: true 
+			transparent: true,
+			map: colorMapTexture,
+			side: DoubleSide
 		  });
 		
+	
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.position = this.mesh.position;
 

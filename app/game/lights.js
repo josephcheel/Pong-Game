@@ -4,7 +4,7 @@ import { DirectionalLightHelper } from 'three'
 export default class Light {
 	constructor(scene) {
 		this.scene = scene;
-		this.ambientLight = new AmbientLight(0xffffff, 0.5);
+		this.ambientLight = new AmbientLight(0xffffff, 0.7);
 		this.scene.add(this.ambientLight);
 		
 		this.directionalLight = new DirectionalLight(0xffffff, 1.34);

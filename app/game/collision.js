@@ -23,7 +23,7 @@ export default function isColliding(sphere, box) {
 	// Calculate distance between closest point and sphere center
 	const distance = spherePosition.distanceTo(closestPoint);
 
-	if (distance < sphere.geometry.parameters.radius)
+	if (distance <= sphere.geometry.parameters.radius)
 	{
 		if (Math.abs(closestPoint.x - (boxPosition.x - boxSize.x * 0.5)) < 0.001) {
 			return 1
@@ -42,7 +42,5 @@ export default function isColliding(sphere, box) {
 		}
 	}
 	return 0
-
-	return distance < sphere.geometry.parameters.radius;
   }
   
