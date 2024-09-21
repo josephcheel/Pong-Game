@@ -88,23 +88,38 @@ function keyHandler(event) {
   if (keys.s.pressed)
   {
       paddle2.position.z +=  speedModifier; 
-      // paddle2.velocity.x = -speedModifier * 10;
+      paddle2.velocity.x = -speedModifier;
   }
   else if (keys.w.pressed)
   {
     paddle2.position.z -=  speedModifier;
-    // paddle2.velocity.x = -speedModifier * 10;
+    paddle2.velocity.x = -speedModifier;
   }
   if (keys.arrowdown.pressed)
   {
     paddle1.position.z += speedModifier;
-    // paddle1.velocity.x = -speedModifier * 10;
+    paddle1.velocity.x = -speedModifier ;
   }
   else if (keys.arrowup.pressed)
   { 
     paddle1.position.z -= speedModifier;
-    // paddle1.velocity.x = speedModifier * 10
+    paddle1.velocity.x = speedModifier;
   }
+ 
+}
+
+function updateBallDirection(paddleDirection, ballDirection) {
+  const angle = Math.random() *  (35 - 10) + 10;
+  console.log(angle);
+  const angleOffset = THREE.MathUtils.degToRad(angle); // Change the angle as needed
+
+  // Calculate the new angle based on the paddle direction
+  if (paddleDirection.x > 0) { // Paddle moving right
+      ballDirection.applyAxisAngle(new THREE.Vector3(0 ,1 ,0) , angleOffset);
+  } else if (paddleDirection.x < 0) { // Paddle moving left
+      ballDirection.applyAxisAngle(new THREE.Vector3(0 ,1 ,0), -angleOffset);
+  }
+
 }
 
 function PaddleLimits() {
@@ -135,9 +150,12 @@ function animate() {
    {
     case 1:
       ball.velocity.x *= -1;
+      // updateBallDirection(paddle1.velocity, ball.velocity);
+      
       break;
     case 2:
       ball.velocity.z *= -1;
+      // updateBallDirection(paddle1.velocity, ball.velocity);
       break;
     
   }
@@ -146,9 +164,11 @@ function animate() {
    {
       case 1:
         ball.velocity.x *= -1;
+        // updateBallDirection(paddle1.velocity, ball.velocity);
         break;
       case 2:
         ball.velocity.z *= -1;
+        // updateBallDirection(paddle1.velocity, ball.velocity);
         break;
   }
   

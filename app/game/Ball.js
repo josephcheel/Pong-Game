@@ -1,5 +1,5 @@
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3, EventDispatcher, MeshStandardMaterial, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial, TextureLoader, RepeatWrapping, EquirectangularReflectionMapping, DoubleSide} from 'three';
-
+import { Mesh, MeshBasicMaterial,ClampToEdgeWrapping, SphereGeometry, Vector3, EventDispatcher, MeshStandardMaterial, MeshNormalMaterial, MeshToonMaterial, MeshPhysicalMaterial, TextureLoader, RepeatWrapping, EquirectangularReflectionMapping, DoubleSide} from 'three';
+import * as THREE from 'three';
 export default class Ball extends EventDispatcher {
 
 	speed = 50;
@@ -14,9 +14,11 @@ export default class Ball extends EventDispatcher {
 		const textureLoader = new TextureLoader();
 		const colorMapTexture = textureLoader.load('./gr.png', function (texture) {
 			texture.mapping = EquirectangularReflectionMapping;
-			// texture.wrapS = RepeatWrapping;
-			// texture.wrapT = RepeatWrapping;
-			texture.repeat.set(1, 1);  // Set how many times the texture repeats across the sphere
+			texture.wrapS = THREE.ClampToEdgeWrapping;
+			texture.wrapS = THREE.ClampToEdgeWrapping;
+			// texture.repeat.set(1, 1);  // Set how many times the texture repeats across the sphere
+			texture.center.set(0.5, 0.5);
+			texture.rotation = Math.PI / 2;
 		  });
 		this.material = new MeshStandardMaterial({
 			// color: 0x2ecc71,
@@ -37,6 +39,9 @@ export default class Ball extends EventDispatcher {
 		this.receiveShadow = true;
 		this.velocity.multiplyScalar(this.speed);
 		this.scene.add(this.mesh);
+
+		// To change the texture edge connection
+		this.mesh.rotation.z = Math.PI / 2;
 		// this.objSphere = new SphereGeometry().setFromObject(this.mesh);
 	}
 
