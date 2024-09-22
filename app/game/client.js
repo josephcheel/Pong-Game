@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { updatePaddlePosition, updateBallPosition, startGame } from './index.js';
+import { updatePaddlePosition, updateBallPosition, startGame, animate } from './index.js';
 const socket = io('ws://localhost:4000');
 
 var PlayerNb = undefined; 
@@ -47,6 +47,7 @@ socket.on('connect', () => {
 		// else
 		// 	PlayerNb = 2;
 		startGame();
+		animate();
 		
 		console.log('Game has started');
 		console.log(PlayerNb);

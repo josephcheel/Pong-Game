@@ -197,7 +197,7 @@ const clock = new THREE.Clock();
 
 let animationFrameIdanimate;
 
-function animate() {
+export function animate() {
   animationFrameIdanimate = requestAnimationFrame(animate);
  
   // Update sphere position based on keys
@@ -275,9 +275,9 @@ export async function startGame() {
 // if (!start) {
 //   startGame();
 // }
-if (start) {
-  animate();
-}
+// if (start) {
+//   animate();
+// }
 
   // Create a new FontLoader instance
 const fontLoader = new FontLoader();
