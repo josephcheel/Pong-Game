@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { updatePaddlePosition, startGame } from './index.js';
+import { updatePaddlePosition, updateBallPosition, startGame } from './index.js';
 const socket = io('ws://localhost:4000');
 
 var PlayerNb = undefined; 
@@ -67,8 +67,8 @@ socket.on('connect', () => {
 	});
 
 
-	socket.on('updateBall', (msg) => {
-		console.log(msg);
+	socket.on('updateBall', (position) => {
+		updateBallPosition(position);
 	});
 	socket.on('disconnect', () => {
 		console.log('Disconnected from server');

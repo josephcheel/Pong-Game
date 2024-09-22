@@ -364,6 +364,12 @@ export function updatePaddlePosition(player)
 
 }
 
+export function updateBallPosition(position)
+{
+  ball.position.set(position.x, position.y, position.z);
+  // console.log('updateBall');
+}
+
 
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   document.getElementById('up-mobile-button').style.visibility = 'visible';

@@ -8,6 +8,8 @@ const { instrument } = require('@socket.io/admin-ui');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const cookie = require('cookie');
+const { start } = require('repl');
+// const { default: isColliding } = require('./game/collision');
 
 class Vector3 {
     constructor(x, y, z)
@@ -16,6 +18,53 @@ class Vector3 {
         this.y = y;
         this.z = z;
     }
+    clone()
+    {
+        return new Vector3(this.x, this.y, this.z);
+    }
+    add(vector)
+    {
+        this.x += vector.x;
+        this.y += vector.y;
+        this.z += vector.z;
+        return this;
+    }
+    sub(vector)
+    {
+        this.x -= vector.x;
+        this.y -= vector.y;
+        this.z -= vector.z;
+        return this;
+    }
+    multiplyScalar(scalar)
+    {
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
+        return this;
+    }
+    copy(vector)
+    {
+        this.x = vector.x;
+        this.y = vector.y;
+        this.z = vector.z;
+    }
+    clamp(min, max)
+    {
+        // Manually clamp each component (x, y, z) of the sphere position
+        this.x = Math.max(min.x, Math.min(this.x, max.x));
+        this.y = Math.max(min.y, Math.min(this.y, max.y));
+        this.z = Math.max(min.z, Math.min(this.z, max.z));
+    }
+
+    distanceTo(vector)
+    {
+        const dx = vector.x - this.x;
+        const dy = vector.y - this.y;
+        const dz = vector.z - this.z;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+    
 }
 
 class UserInput {
@@ -30,20 +79,56 @@ class Ball extends UserInput {
     {
         super();
 
+        this.velocity = velocity;
         this.speed = 50;
         this.radius = 1;
         this.position = position;
-        this.velocity = velocity;
+        this.velocity.multiplyScalar(this.speed);
+        this.isGoal = false;
+    }
+    update(deltaTime)
+    {
+        const displacement = this.velocity.clone().multiplyScalar(deltaTime);
+
+        const FinalPos = this.position.clone().add(displacement);
+        this.boundaries = { x: 50, y: 25 };
+        const dx = this.boundaries.x - this.radius - Math.abs(this.position.x);
+		const dz = this.boundaries.y - this.radius - Math.abs(this.position.z);
+
+		if (dx <= 0 && this.isGoal) {
+			// this.mesh.visible = false
+			this.isGoal = true;
+            FinalPos.x = 0;
+			FinalPos.y = 0;
+			FinalPos.z = 0;
+			if (this.mesh.position.x > 0) {
+				this.dispatchEvent({ type: 'goal', player: 'player1' })
+			}
+			else {
+				this.dispatchEvent({ type: 'goal', player: 'player2' })
+			}
+            this.isGoal = false;
+		}
+
+		if (dz <= 0) {
+			const z = this.mesh.position.z
+			FinalPos.z = (this.boundaries.y - this.radius + dz) * Math.sign(this.mesh.position.z)
+			this.velocity.z *= -1
+		}
+
+		// set new position
+		this.position.copy(FinalPos);
     }   
 }
 class Paddle extends UserInput {
-    constructor(position, width, height)
+    constructor(position, width, height, depth)
     {
         super();
 
         this.position = position;
         this.width = width;
         this.height = height;
+        this.depth = depth
         this.score = 0;
         this.room = undefined;
         this.isWaiting = false;
@@ -65,6 +150,40 @@ class Paddle extends UserInput {
             this.position.z +=  this.keySpeed; 
         else if (this.up)
             this.position.z -=  this.keySpeed;
+    }
+    handleCollision(ball)
+    {
+        const closestPoint = this.position.clone();
+        const scalar = new Vector3(this.width * 0.5, this.height * 0.5, this.depth * 0.5);
+        const min = this.position.clone().sub(scalar);
+        const max = this.position.clone().add(scalar);
+        closestPoint.clamp(
+            min,
+            max
+        );
+        const distance = ball.ball.position.distanceTo(closestPoint);
+        console.log('Distance:', distance);
+        if (distance <= ball.ball.radius)
+        {
+            if (Math.abs(closestPoint.x - (this.position.x - this.width * 0.5)) < 0.001) {
+                return 1
+                // collisionSide = 'left';
+            } else if (Math.abs(closestPoint.x - (this.position.x + this.width.x * 0.5)) < 0.001) {
+                // collisionSide = 'right';
+                return 1
+            }
+    
+            if (Math.abs(closestPoint.z - (this.position.z - this.depth.z * 0.5)) < 0.001) {
+                // collisionSide = 'back';
+                ball.velocity.z *= -1;
+                return 2
+            } else if (Math.abs(closestPoint.z - (this.position.z + this.depth.z * 0.5)) < 0.001) {
+                // collisionSide = 'front';
+                ball.velocity.z *= -1;
+                return 2
+            }
+        }
+        return 0;
     }
 }
 
@@ -96,11 +215,43 @@ var balls = {};
 var positions = {};
 const centerDistanceToPaddle = 45;
 
+
+let s = false;
+let lastTickTime = Date.now();
+
 function GameLoop()
 {
+    // if (!s) {
+    //     lastTickTime = Date.now();
+    //     s = true;
+    // }
+
+    const currentTime = Date.now();
+    const deltaTime = (currentTime - lastTickTime) / 1000; // Time difference in seconds
+    lastTickTime = currentTime;
     // console.log('GameLoop');
     // Send Position Ball
     // Send Position Paddle
+
+    for (let playerId in players)
+    {
+        if (balls[players[playerId].room])
+        {
+            console.log('ball:', balls[players[playerId].room]);
+            console.log('player:', players[playerId]);
+            // console.log(players[playerId].handleCollision(balls[players[playerId].room]));
+           switch (players[playerId].handleCollision(balls[players[playerId].room]))
+            {
+                case 1:
+                    balls[players[playerId].room].ball.velocity.x *= -1;
+                    break;
+                case 2:
+                    balls[players[playerId].room].ball.velocity.z *= -1;
+                    break;
+            }
+        }
+
+    }
 
     for (let playerId in players)
     {
@@ -108,9 +259,31 @@ function GameLoop()
         players[playerId].keyHandler();
         players[playerId].PaddleLimits();
         // console.log('Player:', playerId);
+        // if (balls[players[playerId].room])
+        // {
+        //     console.log('ball:', balls[players[playerId].room]);
+        //     console.log('player:', players[playerId]);
+        //     // console.log(players[playerId].handleCollision(balls[players[playerId].room]));
+        //    switch (players[playerId].handleCollision(balls[players[playerId].room]))
+        //     {
+        //         case 1:
+        //             balls[players[playerId].room].ball.velocity.x *= -1;
+        //             break;
+        //         case 2:
+        //             balls[players[playerId].room].ball.velocity.z *= -1;
+        //             break;
+        //     }
+        // }
         io.to(players[playerId].room).emit('updatePlayer', { id: playerId , z: players[playerId].position.z, nb: players[playerId].nb });
         // console.log('position:', players[playerId].position);
+
     }
+    for (let id in balls)
+    {
+        balls[id].ball.update(deltaTime);
+        io.to(balls[id].room).emit('updateBall', balls[id].ball.position);
+    }
+
 }
 
 io.on("connection", (socket) => {
@@ -133,7 +306,7 @@ io.on("connection", (socket) => {
     }
     else if (Object.keys(players).length % 2 === 0)
     {
-        players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2);
+        players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
         players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
         players[socket.id].room = crypto.randomUUID();
         players[socket.id].id = socket.id;
@@ -146,11 +319,11 @@ io.on("connection", (socket) => {
     }
     else if (Object.keys(players).length % 2 !== 0)
     {
-        players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2);
+        players[socket.id] = new Paddle(new Vector3(0, 0, 0),  1, 2, 6);
         players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
         players[socket.id].id = socket.id;
         players[socket.id].nb = 2;
-        let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(1, 0, 0));
+        let tmpBall = new Ball(new Vector3(1, 0, 0), new Vector3(1, 0, 0));
         let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
         players[socket.id].room = players[KeyPlayer1].room;
         balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
@@ -178,7 +351,7 @@ io.on("connection", (socket) => {
         {
             players[socket.id].up = userInput.up;
             players[socket.id].down = userInput.down;
-        }     
+        }
     });
     // for (let id in balls)
     // {

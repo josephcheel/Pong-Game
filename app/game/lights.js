@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, PointLight } from 'three';
+import { AmbientLight, DirectionalLight, PointLight,  } from 'three';
 
 export default class Light {
 	constructor(scene) {
@@ -14,6 +14,15 @@ export default class Light {
 		// this.directionalLight.shadow.camera.near = 0.1;
 		// this.directionalLight.shadow.camera.far = 50;
 		
+		// this.recLight = new RectAreaLight(0xffffff, 1000, 100, 100);
+		// this.recLight.position.set(10, 30, 10);
+		// this.recLight.lookAt(0, 0, 0);
+		// this.recLight.castShadow = true;
+		// scene.add(this.recLight);
+
+		// helper  = new RectAreaLightHelper( this.recLight );
+		// scene.add( helper );
+
 		this.pointLight = new PointLight(0xffffff, 1000, 1000);
 		this.pointLight.position.set(0, 30, 0);
 		this.scene.add(this.pointLight);
