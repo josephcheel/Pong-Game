@@ -26,9 +26,11 @@ RUN npm run build
 # Copy the built app files to the Nginx html directory
 RUN cp -r /app/dist/* /var/www/html/
 RUN cp -r /app/fonts /var/www/html/
+RUN cp /app/index.js /var/www/html/
 
 # Expose port 3000
-EXPOSE 3000
+EXPOSE 4000
 
 # Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "/var/www/html/index.js"]
+# CMD ["pm2-runtime", "start", "dist/index.js"]

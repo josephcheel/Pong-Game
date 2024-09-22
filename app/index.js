@@ -102,10 +102,12 @@ class Ball extends UserInput {
 			FinalPos.y = 0;
 			FinalPos.z = 0;
 			if (this.mesh.position.x > 0) {
-				this.dispatchEvent({ type: 'goal', player: 'player1' })
+				// this.dispatchEvent({ type: 'goal', player: 'player1' })
+                socket.emit('goal', { player: 'player1' });
 			}
 			else {
-				this.dispatchEvent({ type: 'goal', player: 'player2' })
+				// this.dispatchEvent({ type: 'goal', player: 'player2' })
+                socket.emit('goal', { player: 'player2' });
 			}
             this.isGoal = false;
 		}
@@ -151,40 +153,96 @@ class Paddle extends UserInput {
         else if (this.up)
             this.position.z -=  this.keySpeed;
     }
-    handleCollision(ball)
-    {
-        const closestPoint = this.position.clone();
-        const scalar = new Vector3(this.width * 0.5, this.height * 0.5, this.depth * 0.5);
-        const min = this.position.clone().sub(scalar);
-        const max = this.position.clone().add(scalar);
-        closestPoint.clamp(
-            min,
-            max
-        );
-        const distance = ball.ball.position.distanceTo(closestPoint);
-        console.log('Distance:', distance);
-        if (distance <= ball.ball.radius)
-        {
-            if (Math.abs(closestPoint.x - (this.position.x - this.width * 0.5)) < 0.001) {
-                return 1
-                // collisionSide = 'left';
-            } else if (Math.abs(closestPoint.x - (this.position.x + this.width.x * 0.5)) < 0.001) {
-                // collisionSide = 'right';
-                return 1
-            }
+    // handleCollision(ball)
+    // {
+    //     const closestPoint = this.position.clone();
+    //     const scalar = new Vector3(this.width * 0.5, this.height * 0.5, this.depth * 0.5);
+    //     const min = this.position.clone().sub(scalar);
+    //     const max = this.position.clone().add(scalar);
+    //     closestPoint.clamp(
+    //         min,
+    //         max
+    //     );
+    //     const distance = ball.ball.position.distanceTo(closestPoint);
+    //     // console.log('Distance:', distance);
+    //     if (distance <= ball.ball.radius)
+    //     {
+    //         if (Math.abs(closestPoint.x - (this.position.x - this.width * 0.5)) < 0.001) {
+    //             return 1
+    //             // collisionSide = 'left';
+    //         } else if (Math.abs(closestPoint.x - (this.position.x + this.width.x * 0.5)) < 0.001) {
+    //             // collisionSide = 'right';
+    //             return 1
+    //         }
     
-            if (Math.abs(closestPoint.z - (this.position.z - this.depth.z * 0.5)) < 0.001) {
-                // collisionSide = 'back';
-                ball.velocity.z *= -1;
-                return 2
-            } else if (Math.abs(closestPoint.z - (this.position.z + this.depth.z * 0.5)) < 0.001) {
-                // collisionSide = 'front';
-                ball.velocity.z *= -1;
-                return 2
-            }
+    //         if (Math.abs(closestPoint.z - (this.position.z - this.depth.z * 0.5)) < 0.001) {
+    //             // collisionSide = 'back';
+    //             ball.velocity.z *= -1;
+    //             return 2
+    //         } else if (Math.abs(closestPoint.z - (this.position.z + this.depth.z * 0.5)) < 0.001) {
+    //             // collisionSide = 'front';
+    //             ball.velocity.z *= -1;
+    //             return 2
+    //         }
+    //     }
+    //     return 0;
+    // }
+    handleCollision(ball) {
+        // Example collision detection logic
+        const paddle = this; // Assuming the player has a paddle property
+        const ballPosition = ball.ball.position;
+        const ballVelocity = ball.ball.velocity;
+
+        // Check for collision with paddle
+        if (ballPosition.x >= paddle.position.x && ballPosition.x <= paddle.position.x + paddle.width &&
+            ballPosition.z >= paddle.position.z && ballPosition.z <= paddle.position.z + paddle.depth) {
+            // Determine collision side
+            // console.log('Collision');
+            // if (ballVelocity.x > 0) {
+            //     return 1; // Collision on the x-axis
+            // } else if (ballVelocity.z > 0) {
+            //     return 2; // Collision on the z-axis
+            // }
+            return 1;
         }
-        return 0;
+
+        return 0; // No collision
     }
+
+    // handleCollision(ball) {
+    // const paddle = this; // Assuming the player has a paddle property
+    // const ballPosition = ball.ball.position;
+    // const ballVelocity = ball.ball.velocity;
+
+    // Check for collision with paddle
+//     if (ballPosition.x >= paddle.position.x && ballPosition.x <= paddle.position.x + paddle.width &&
+//         ballPosition.z >= paddle.position.z && ballPosition.z <= paddle.position.z + paddle.depth) {
+        
+//         // Determine collision side
+//         const closestPoint = {
+//             x: Math.max(paddle.position.x, Math.min(ballPosition.x, paddle.position.x + paddle.width)),
+//             z: Math.max(paddle.position.z, Math.min(ballPosition.z, paddle.position.z + paddle.depth))
+//         };
+
+//         if (Math.abs(closestPoint.x - paddle.position.x) < 0.001) {
+//             // Collision on the left side
+//             return 1;
+//         } else if (Math.abs(closestPoint.x - (paddle.position.x + paddle.width)) < 0.001) {
+//             // Collision on the right side
+//             return 1;
+//         }
+
+//         if (Math.abs(closestPoint.z - paddle.position.z) < 0.001) {
+//             // Collision on the back side
+//             return 2;
+//         } else if (Math.abs(closestPoint.z - (paddle.position.z + paddle.depth)) < 0.001) {
+//             // Collision on the front side
+//             return 2;
+//         }
+//     }
+
+//     return 0; // No collision
+// }
 }
 
 
@@ -229,7 +287,6 @@ function GameLoop()
     const currentTime = Date.now();
     const deltaTime = (currentTime - lastTickTime) / 1000; // Time difference in seconds
     lastTickTime = currentTime;
-    // console.log('GameLoop');
     // Send Position Ball
     // Send Position Paddle
 
@@ -237,9 +294,7 @@ function GameLoop()
     {
         if (balls[players[playerId].room])
         {
-            console.log('ball:', balls[players[playerId].room]);
-            console.log('player:', players[playerId]);
-            // console.log(players[playerId].handleCollision(balls[players[playerId].room]));
+            // console.log('ball:', balls[players[playerId].room].ball.position);
            switch (players[playerId].handleCollision(balls[players[playerId].room]))
             {
                 case 1:
@@ -248,6 +303,8 @@ function GameLoop()
                 case 2:
                     balls[players[playerId].room].ball.velocity.z *= -1;
                     break;
+                // default:
+                //     console.log('No Collision');
             }
         }
 
@@ -255,27 +312,10 @@ function GameLoop()
 
     for (let playerId in players)
     {
-        // console.log('Player:', players[playerId]);
         players[playerId].keyHandler();
         players[playerId].PaddleLimits();
-        // console.log('Player:', playerId);
-        // if (balls[players[playerId].room])
-        // {
-        //     console.log('ball:', balls[players[playerId].room]);
-        //     console.log('player:', players[playerId]);
-        //     // console.log(players[playerId].handleCollision(balls[players[playerId].room]));
-        //    switch (players[playerId].handleCollision(balls[players[playerId].room]))
-        //     {
-        //         case 1:
-        //             balls[players[playerId].room].ball.velocity.x *= -1;
-        //             break;
-        //         case 2:
-        //             balls[players[playerId].room].ball.velocity.z *= -1;
-        //             break;
-        //     }
-        // }
+
         io.to(players[playerId].room).emit('updatePlayer', { id: playerId , z: players[playerId].position.z, nb: players[playerId].nb });
-        // console.log('position:', players[playerId].position);
 
     }
     for (let id in balls)

@@ -7,7 +7,7 @@ services:
     image: pong-game-img
     restart: always
     ports:
-      - 3000:3000
+      - 4000:4000
     networks:
       - my-network
 

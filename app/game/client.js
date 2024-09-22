@@ -66,7 +66,9 @@ socket.on('connect', () => {
 		// }
 	});
 
-
+	socket.on('goal', (data) => {
+		console.log('Goal');
+	});
 	socket.on('updateBall', (position) => {
 		updateBallPosition(position);
 	});
