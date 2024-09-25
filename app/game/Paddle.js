@@ -1,4 +1,4 @@
-import { Mesh, MeshPhongMaterial,MeshStandardMaterial, BoxGeometry, Box3, Box3Helper, Vector3 } from 'three';
+import { Mesh, MeshStandardMaterial, BoxGeometry, Vector3 } from 'three';
 
 export default class Paddle {
 	constructor(scene, x, y, z) {

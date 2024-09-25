@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, PointLight, RectAreaLight } from 'three';
+import { AmbientLight, DirectionalLight, RectAreaLight } from 'three';
 import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper'
 import { DirectionalLightHelper } from 'three'
 export default class Light {

@@ -10,21 +10,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  
   <header>
     <h1 id="score">Score 0 - 0 </h1>
+    <input type="checkbox" id="volume">
+      <img src="./assets/mute.svg" alt="volume mute" id="mute" >
+      <img src="./assets/unmute.svg" alt="volume unmute" id="unmute" >
+    </input>
   </header>
+
   <section> 
-    <div id="countdown-container">
+    <aside id="countdown-container">
     <h1 id="countdown">3</h1>
-  </div>
-  <div id="left-keys">
+  </aside>
+  <aside id="left-keys">
     <h2 class="keys">W</h2>
     <h2 class="keys">S</h2>
-  </div>
-  <div id="right-keys">
+  </aside>
+  <aside id="right-keys">
     <h2 class="keys">↑</h2>
     <h2 class="keys">↓</h2>
-  </div>
+  </aside>
 </section>
 <script type="module" src="./game/index.js" ></script>
 </body>
