@@ -61,10 +61,10 @@ const ball = new Ball(scene, listener);
 ball.position.set(0, 0, 0);
 const planeGeometry = new BoxGeometry(100, 50, 1);
 const planeMaterial = new MeshStandardMaterial({
-  color: 0xf88379,
+  color: 0xf88379,//0xf88379,//0x9dc1fa,
   roughness: 0.4,
   metalness: 0.25,
-  emissive: 0xf88379,
+  emissive: 0x78ecf0,//0xf88379,
   emissiveIntensity: 0.1,
   });
 
@@ -147,7 +147,7 @@ function PaddleLimits() {
     paddle2.position.z = -22;
 }
 
-var collisionSound = new SoundEffect(listener, './audio/beep2.mp3', 0.5);
+var collisionSound = new SoundEffect(listener, './assets/audio/beep2.mp3', 0.5);
 
 let animationFrameIdanimate;
 
@@ -288,8 +288,8 @@ if (!start) {
 
 animate();
 
-const text = new Text(scene, 'GOAL!', './fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(2, 0, 0), camera.position);
-const endText = new Text(scene, 'END', './fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(5, 0, 0), camera.position);
+const text = new Text(scene, 'GOAL!', './assets/fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(2, 0, 0), camera.position);
+const endText = new Text(scene, 'END', './assets/fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(5, 0, 0), camera.position);
 
 function restart()
 {
@@ -309,8 +309,8 @@ function updateScore(from)
 }
 
 
-var endSound = new SoundEffect(listener, './audio/end.wav', 0.5);
-var goalSound = new SoundEffect(listener, './audio/goal4.wav', 0.5);
+var endSound = new SoundEffect(listener, './assets/audio/end.wav', 0.5);
+var goalSound = new SoundEffect(listener, './assets/audio/goal4.wav', 0.5);
 ball.addEventListener('goal', (from) => {
 
   text.show();

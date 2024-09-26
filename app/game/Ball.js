@@ -21,7 +21,7 @@ export default class Ball extends EventDispatcher {
 		// 	texture.rotation = Math.PI / 2;
 		//   });
 		this.material = new MeshStandardMaterial({
-			color: 0xc1f7c7, // verde menta pastel color
+			color: 0xff0000, // red color
 			roughness: 0.1,
 			metalness: 0.2,
 			emissive: 0x98FF98,
@@ -45,7 +45,7 @@ export default class Ball extends EventDispatcher {
 		// this.objSphere = new SphereGeometry().setFromObject(this.mesh);
 
 		// Load a sound and set it as the audio object's buffer
-		this.wallSound = new SoundEffect(listener, './audio/beep.mp3', 0.5);
+		this.wallSound = new SoundEffect(listener, './assets/audio/beep.mp3', 0.5);
 	
 		
 	}
