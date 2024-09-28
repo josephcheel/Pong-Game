@@ -1,8 +1,10 @@
 import io from 'socket.io-client';
-import { updatePaddlePosition, updateBallPosition, startGame, animate } from './index.js';
-const socket = io('ws://localhost:4000');
+import { changeCameraPosition, updatePaddlePosition, updateBallPosition, startGame, animate } from './index.js';
+// import { camera } from './index.js';
+const socket = io('ws://192.168.1.43:4000');
 
-var PlayerNb = undefined; 
+
+let PlayerNb = undefined;
 
 const keys = {
 	a: {
@@ -33,35 +35,54 @@ socket.on('connect', () => {
 	console.log('Connected to server');
 	// socket.emit('chat message', 'Hello from client');
 	
-
-	socket.on('set-cookie', (cookie) => {
-		// Set the cookie in the browser using JavaScript
-		document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
-		console.log('Cookie has been set:', document.cookie);
+	socket.on('set-cookie', (cookies) => {
+		console.log('Setting cookies', cookies);
+		for (let cookie of cookies) {
+			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
+			console.log('Cookie has been set:', document.cookie);
+		}
 	});
 	
 	socket.on('startGame', (data) => {
-		// if (data.player1.id === socket.id) {
-		// 	PlayerNb = 1;
-		// }
-		// else
-		// 	PlayerNb = 2;
+		if (data.player1.id === socket.id) {
+			PlayerNb = 1;
+			// camera.position.set(60, 5, 0);
+		}
+		else
+			// camera.position.set(-60, 5, 0);
+			PlayerNb = 2;
+		let elements = document.getElementsByClassName('waiting-screen');
+
+		for (let i = 0; i < elements.length; i++) {
+		elements[i].style.display = 'none';
+		}
 		startGame();
 		animate();
 		
 		console.log('Game has started');
 		console.log(PlayerNb);
+		// if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {	
+			if (PlayerNb === 1)
+				changeCameraPosition(1);
+				// camera.position.set(-80, 5, 0);
+			else if (PlayerNb === 2)
+				changeCameraPosition(2);
+			// camera.lookAt(new THREE.Vector3(0, 0, 0));
+			// camera.fov = 150;
+		// }
+	});
+
+	socket.on('reconnect', (data) => {
+		console.log('Reconnected to server');
+
+		updateBallPosition(data.ball);
 		
 	});
 
-	socket.on('gameFull', () => {
-		console.log('Game is full');
-	});
-
-	socket.on('updatePlayer', (data) => {
+	socket.on('updatePlayer', (player) => {
 		// console.log(data);
 		// if (data.id !== socket.id) {
-			updatePaddlePosition(data)
+			updatePaddlePosition(player)
 			// console.log('padlle1:', paddle1);
 			// console.log('padlle2:', paddle2);
 		// }
@@ -110,18 +131,78 @@ socket.on('connect', () => {
 			keys.w.pressed = false;
 			break;
 		}
-		// console.log('UserInput');
 		socket.emit('userInput', { down: keys.s.pressed, up: keys.w.pressed });
 	});
 	
 	
 		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
-			socket.emit('userInput', { down: true, up: false });
-		});
-	  
-		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 1) return;
 			socket.emit('userInput', { down: false, up: true });
 		});
-		
+		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: true, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: true, up: false });
+		});
+		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: true });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+	
+	if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+		document.getElementById('up-mobile-button').style.visibility = 'visible';
+		document.getElementById('down-mobile-button').style.visibility = 'visible';
+		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: false, up: true });
+		});
+		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: true, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 1) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: true, up: false });
+		});
+		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: true });
+		});
+		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
+			if (PlayerNb !== 2) return;
+			socket.emit('userInput', { down: false, up: false });
+		});
+	}
 });
 

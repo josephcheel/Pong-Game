@@ -7,12 +7,13 @@ import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-
+// import { PlayerNb } from './client.js';
 /* Variables */
 const centerDistanceToPaddle = 45;
 var score = {player1: 0, player2: 0};
 var start = false;
 var MaxGoals = 5;
+
 /* Initialize the scene, camera, and renderer */
 const scene = new THREE.Scene();
 
@@ -23,7 +24,9 @@ const aspect = {
   height: window.innerHeight
 };
 
-const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
+// export const camera = new THREE.OrthographicCamera(-aspect.width / 2, aspect.width / 2, aspect.height / 2, -aspect.height / 2, 0.1, 1000);
+export const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
+
 camera.position.set(0, 50, 10);
 camera.lookAt(new THREE.Vector3(0, 0, 0))
 
@@ -200,6 +203,7 @@ let animationFrameIdanimate;
 export function animate() {
   animationFrameIdanimate = requestAnimationFrame(animate);
  
+  controls.update();
   // Update sphere position based on keys
   // const deltaTime = clock.getDelta();
   // ball.update(deltaTime);
@@ -248,6 +252,10 @@ function animationBeforeGame() {
 }
 async function startCountdown() {
   document.getElementById('countdown-container').style.visibility = 'visible';
+  let keys = document.getElementsByClassName('keys');
+  for (let i = 0; i < keys.length; i++) {
+    keys[i].style.visibility = 'visible';
+  }
   await sleep(1000);
   document.getElementById('countdown').textContent = '2';
   await sleep(1000);
@@ -267,6 +275,7 @@ export async function startGame() {
   document.getElementById('countdown').hidden = true;
   document.getElementById('score').style.visibility = 'visible';
   ball.velocity = new THREE.Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(ball.speed);
+  
   cancelAnimationFrame(animationFrameId);
   start = true;
 }
@@ -374,4 +383,20 @@ export function updateBallPosition(position)
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   document.getElementById('up-mobile-button').style.visibility = 'visible';
   document.getElementById('down-mobile-button').style.visibility = 'visible';
+  // console.log('PlayerNb:', PlayerNb);
+
+}
+
+export function changeCameraPosition(playerNb)
+{
+  if (playerNb === 1)
+  {
+    camera.position.set(-80, 5, 0);
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
+  }
+  else if (playerNb === 2)
+  {
+    camera.position.set(80, 5, 0);
+    // camera.lookAt(new THREE.Vector3(0, 0, 0));
+  }
 }
