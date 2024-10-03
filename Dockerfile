@@ -25,7 +25,7 @@ RUN npm run build
 
 # Copy the built app files to the Nginx html directory
 RUN cp -r /app/dist/* /var/www/html/
-RUN cp -r /app/fonts /var/www/html/
+RUN cp -r /app/assets /var/www/html/
 
 # Expose port 3000
 EXPOSE 3000

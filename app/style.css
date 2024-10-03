@@ -1,6 +1,12 @@
 
-body { margin: 0; height: 100%; }
-canvas { display: block; }
+body {
+  margin: 0;
+  height: 100%;
+  /* place-content: center; */
+}
+canvas {
+  display: block;
+}
 #score {
 		display: flexbox;
 		/* justify-content: center; */
@@ -22,6 +28,7 @@ header {
 		margin-left: 20%;
 		margin-right: 20%;
 }
+
 #right-keys 
 {
   position: absolute;
@@ -29,6 +36,7 @@ header {
   right: 25%;
   padding: 10px;
 }
+
 #left-keys
 {
   position: absolute;
@@ -36,26 +44,28 @@ header {
   left: 25%;
   padding: 10px;
   /* text-align: center; */
-}
+ }
+
 .keys {
-  font-size: 40px;
+  font-size: 3em;
   font-family: 'SUSE';
   letter-spacing: 1;
-  width: 90px;
-  height: 90px;
+  width: 10vh;
+  height: 10vh;
   border: none;
   outline: none;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 20%;
   text-align: center;
   text-align-last: center;
-  padding: 10px;
+  padding: 1rem;
   background-color: seashell;
   justify-content: center;
   align-items: center;
   box-shadow: 5px 5px 10px black, -3px -2px 20px rgba(255, 255, 255, 0.626);
   letter-spacing: 1px;
 }
+
 .keys:hover {
   background-color: #f0f0f0;
   box-shadow: 5px 5px 10px black, -3px -2px 20px rgba(255, 255, 255, 0.626);

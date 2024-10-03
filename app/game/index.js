@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Vector3, AudioListener, BoxGeometry, MeshStandardMaterial, Mesh, MeshPhongMaterial, Clock, MathUtils} from 'three'
+import { Scene, PerspectiveCamera, WebGLRenderer, Vector3, AudioListener, BoxGeometry, MeshStandardMaterial, Mesh, MeshPhongMaterial, Clock, MathUtils, OrthographicCamera} from 'three'
 import Ball from './Ball.js';
 import Paddle from './Paddle.js';
 import Lights from './lights.js';
@@ -7,12 +7,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { keys, userInput } from './userInput.js';
 import Text from './Text.js';
 import SoundEffect from './SoundEffect.js';
+import Stadium from './Stadium.js';
+import Clouds from './Clouds.js';
+// import CollisionParticle from './CollisionParticle.js';
+// import Particles from './Particles.js';
+
 /* Variables */
 const CENTER_DISTANCE_TO_PADDLE = 45;
 var score = {player1: 0, player2: 0};
-var start = false;
 var MAX_GOALS = 5;
-var MAX_BALL_VELOCITY = 50;
+var MAX_BALL_VELOCITY = 50; // 70 // 100
 var MIN_BALL_VELOCITY = 25;
 var volumeOn = true;
 /* Initialize the scene, camera, and renderer */
@@ -33,20 +37,21 @@ document.getElementById('volume').addEventListener('change', () => {
     volumeOn = true;
 });
 
+// const camera = new OrthographicCamera(-aspect.width / 2, aspect.width / 2, aspect.height / 2, -aspect.height / 2, 0.1, 1000);
+
 const camera = new PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
-camera.position.set(0, 50, 10);
-camera.lookAt(new Vector3(0, 0, 0))
 
 const renderer = new WebGLRenderer({ antialias: true});
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor(0xc2f1ff);
 renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
+document.getElementById('canvas').appendChild(renderer.domElement);
 
 /* Listener for the camera */
 const listener = new AudioListener();
 camera.add(listener);
+// const particles = new Particles(scene);
 
 
 /* Paddle for the player */
@@ -59,35 +64,17 @@ paddle2.castShadow = true;
 /* Ball for the game */
 const ball = new Ball(scene, listener);
 ball.position.set(0, 0, 0);
-const planeGeometry = new BoxGeometry(100, 50, 1);
-const planeMaterial = new MeshStandardMaterial({
-  color: 0xf88379,//0xf88379,//0x9dc1fa,
-  roughness: 0.4,
-  metalness: 0.25,
-  emissive: 0x78ecf0,//0xf88379,
-  emissiveIntensity: 0.1,
-  });
 
-const plane = new Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = - Math.PI / 2;
-plane.position.y = -2;
-plane.receiveShadow = true;
-scene.add(plane);
+new Stadium(scene);
+new Clouds(scene);
 
-const Box = new BoxGeometry(2, 50.1, 1.1);
 
-const BoxMaterial = new MeshPhongMaterial({ color: 0xffffff });
-const BoxMesh = new Mesh(Box, BoxMaterial);
 
-BoxMesh.rotation.x = - Math.PI / 2;
-BoxMesh.position.y = -2;
-BoxMesh.renderOrder = 0;
-scene.add(BoxMesh);
 
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 
-new Lights(scene);
+const lights = new Lights(scene);
 
 userInput();
 
@@ -152,8 +139,11 @@ var collisionSound = new SoundEffect(listener, './assets/audio/beep2.mp3', 0.5);
 let animationFrameIdanimate;
 
 function animate() {
+
+  if (animationFrameIdanimate)
+    cancelAnimationFrame(animationFrameIdanimate);
   animationFrameIdanimate = requestAnimationFrame(animate);
- 
+
   // Update sphere position based on keys
   const deltaTime = clock.getDelta();
   ball.update(deltaTime, volumeOn);
@@ -193,15 +183,11 @@ function animate() {
         ball.position.z -= 0.3;
       else
         ball.position.z += 0.3;
-      updateBallDirection(paddle1.velocity, ball.velocity);
       if (volumeOn)
         collisionSound.play();
       break;
-    // case 3:
-    //   console.log('Inside');
-    
   }
-
+  
    switch (isColliding(ball.mesh, paddle2.mesh))
    {
       case 1:
@@ -234,12 +220,10 @@ function animate() {
           ball.position.z -= 0.3;
         else
           ball.position.z += 0.3;
-        updateBallDirection(paddle1.velocity, ball.velocity);
+        // updateBallDirection(paddle1.velocity, ball.velocity);
         if (volumeOn)
           collisionSound.play();
         break;
-      // case 3:
-      //   console.log('Inside');
   }
   renderer.render(scene, camera);
 }
@@ -255,10 +239,20 @@ function animationBeforeGame() {
   animationFrameId = requestAnimationFrame(animationBeforeGame);
   keyHandler();
   PaddleLimits();
+  camera.lookAt(new Vector3(0, 0, 0));
+  if (camera.position.y < 15)
+    camera.position.y += 0.2;
+  else
+    camera.position.y += 0.4;
+  camera.position.z += 0.1;
+  if (camera.position.y > 50)
+    camera.position.y = 50;
+  if (camera.position.z > 10)
+    camera.position.z = 10;
   renderer.render(scene, camera);
 }
 async function startCountdown() {
-  await sleep(1000);
+  await sleep(2000);
   document.getElementById('countdown').textContent = '2';
   await sleep(1000);
   document.getElementById('countdown').textContent = '1';
@@ -272,6 +266,9 @@ async function startCountdown() {
 async function startGame() {
   animationBeforeGame();
   await startCountdown();
+  console.log('camera', camera.position);
+  camera.position.set(0, 50, 10);
+  camera.lookAt(new Vector3(0, 0, 0));
   document.getElementById('right-keys').hidden = true;
   document.getElementById('left-keys').hidden = true;
   document.getElementById('countdown').hidden = true;
@@ -279,14 +276,10 @@ async function startGame() {
   ball.velocity = new Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(ball.speed / 2);
   ball.velocity.x = MIN_BALL_VELOCITY;
   cancelAnimationFrame(animationFrameId);
-  start = true;
+  animate();
 }
 
-if (!start) {
-  startGame();
-}
-
-animate();
+startGame();
 
 const text = new Text(scene, 'GOAL!', './assets/fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(2, 0, 0), camera.position);
 const endText = new Text(scene, 'END', './assets/fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new Vector3(5, 0, 0), camera.position);
@@ -294,6 +287,22 @@ const endText = new Text(scene, 'END', './assets/fonts/kenney_rocket_regular.jso
 function restart()
 {
   location.reload();
+}
+
+function playAgain()
+{
+  document.getElementById('score').style.visibility = 'hidden';
+  score = {player1: 0, player2: 0};
+  document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
+  ball.position.set(0, 0, 0);
+  
+  ball.velocity.set(0, 0, 0);
+  ball.mesh.visible = true;
+  endText.hide();
+  document.getElementById('right-keys').hidden = false;
+  document.getElementById('left-keys').hidden = false;
+  startGame();
+
 }
 
 function updateScore(from)
@@ -308,12 +317,12 @@ function updateScore(from)
   console.log(score);
 }
 
-
 var endSound = new SoundEffect(listener, './assets/audio/end.wav', 0.5);
 var goalSound = new SoundEffect(listener, './assets/audio/goal4.wav', 0.5);
 ball.addEventListener('goal', (from) => {
 
   text.show();
+  lights.spotLight.visible = true;
   updateScore(from);
   
   if (score.player1 === MAX_GOALS || score.player2 === MAX_GOALS){
@@ -340,6 +349,7 @@ ball.addEventListener('goal', (from) => {
       ball.velocity.x *= direction;
       ball.position.set(0, 0, 0);
       text.hide();
+      lights.spotLight.visible = false;
       ball.mesh.visible = true;
       console.log('Goal!');
     

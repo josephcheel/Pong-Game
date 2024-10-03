@@ -11,7 +11,7 @@ export default class Ball extends EventDispatcher {
 		this.geometry = new SphereGeometry(this.radius, 32, 32);
 		
 		// this.material = new MeshToonMaterial({ color: 0x2ecc71 });
-		const textureLoader = new TextureLoader();
+		// const textureLoader = new TextureLoader();
 		// const colorMapTexture = textureLoader.load('./gr.png', function (texture) {
 		// 	texture.mapping = EquirectangularReflectionMapping;
 		// 	texture.wrapS = ClampToEdgeWrapping;

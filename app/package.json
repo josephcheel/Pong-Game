@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp -r assets dist/",
     "preview": "vite preview",
     "host": "vite --host 0.0.0.0"
   },
@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "stats.js": "^0.17.0",
     "vite": "^5.4.3"
   },
   "dependencies": {
