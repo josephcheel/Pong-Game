@@ -50,7 +50,7 @@ export default class Ball extends EventDispatcher {
 		
 	}
 
-	update(dt, volumeOn) {
+	update(dt) {
 		// calculate displacement
 		const displacement = this.velocity.clone().multiplyScalar(dt);
 		
@@ -80,7 +80,7 @@ export default class Ball extends EventDispatcher {
 			// const message = z > 0 ? 'pc' : 'player'
 			// this.dispatchEvent({ type: 'ongoal', message: message })
 			// sound.play();
-			if (!this.wallSound.sound.isPlaying && this.mesh.visible && volumeOn) {
+			if (!this.wallSound.sound.isPlaying && this.mesh.visible) {
 				this.wallSound.play();
 			}
 			FinalPos.z =

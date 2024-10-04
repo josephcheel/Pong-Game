@@ -18,7 +18,6 @@ var score = {player1: 0, player2: 0};
 var MAX_GOALS = 5;
 var MAX_BALL_VELOCITY = 50; // 70 // 100
 var MIN_BALL_VELOCITY = 25;
-var volumeOn = true;
 /* Initialize the scene, camera, and renderer */
 const scene = new Scene();
 
@@ -29,13 +28,6 @@ const aspect = {
   height: window.innerHeight
 };
 
-document.getElementById('volume').addEventListener('change', () => {
-  const volumeButton =  document.getElementById('volume');
-  if (volumeButton.checked)
-    volumeOn = false;
-  else
-    volumeOn = true;
-});
 
 // const camera = new OrthographicCamera(-aspect.width / 2, aspect.width / 2, aspect.height / 2, -aspect.height / 2, 0.1, 1000);
 
@@ -48,11 +40,20 @@ renderer.setClearColor(0xc2f1ff);
 renderer.shadowMap.enabled = true;
 document.getElementById('canvas').appendChild(renderer.domElement);
 
+
 /* Listener for the camera */
 const listener = new AudioListener();
 camera.add(listener);
-// const particles = new Particles(scene);
 
+document.getElementById('volume').addEventListener('change', () => {
+  const volumeButton =  document.getElementById('volume');
+  if (volumeButton.checked)
+    listener.setMasterVolume(0);
+  else
+    listener.setMasterVolume(0.5);
+});
+
+// const particles = new Particles(scene);
 
 /* Paddle for the player */
 const paddle1 = new Paddle(scene, CENTER_DISTANCE_TO_PADDLE, 0, 0);
@@ -146,7 +147,7 @@ function animate() {
 
   // Update sphere position based on keys
   const deltaTime = clock.getDelta();
-  ball.update(deltaTime, volumeOn);
+  ball.update(deltaTime);
   keyHandler();
   PaddleLimits();
 
@@ -167,8 +168,7 @@ function animate() {
       else
         ball.position.x += 0.3;
       updateBallDirection(paddle1.velocity, ball.velocity);
-      if (volumeOn)
-        collisionSound.play();
+      collisionSound.play();
       break;
     case 2:
       if (Math.abs(ball.velocity.x) <= MIN_BALL_VELOCITY)
@@ -183,7 +183,6 @@ function animate() {
         ball.position.z -= 0.3;
       else
         ball.position.z += 0.3;
-      if (volumeOn)
         collisionSound.play();
       break;
   }
@@ -203,9 +202,10 @@ function animate() {
           ball.position.x -= 0.3;
         else
           ball.position.x += 0.3;//0.1;
+        
         updateBallDirection(paddle1.velocity, ball.velocity);
-        if (volumeOn)
-          collisionSound.play();
+        collisionSound.play();
+        
         break;
       case 2:
         if (Math.abs(ball.velocity.x) <= MIN_BALL_VELOCITY)
@@ -221,8 +221,7 @@ function animate() {
         else
           ball.position.z += 0.3;
         // updateBallDirection(paddle1.velocity, ball.velocity);
-        if (volumeOn)
-          collisionSound.play();
+        collisionSound.play();
         break;
   }
   renderer.render(scene, camera);
@@ -329,15 +328,13 @@ ball.addEventListener('goal', (from) => {
     document.getElementById('score').textContent = `End of the game!`;
     text.hide();
     endText.show();
-    if (volumeOn)
-      endSound.play();
+    endSound.play();
     setTimeout(() => {
       restart();
     }, 2000);
   }
   else {
-    if (volumeOn)
-      goalSound.play();
+    goalSound.play();
     setTimeout(() => {
       let direction = undefined;
       if (ball.velocity.x > 0)
