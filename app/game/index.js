@@ -7,6 +7,7 @@ import isColliding from './collision.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import Text from './Text.js';
 // import { PlayerNb } from './client.js';
 /* Variables */
 const centerDistanceToPaddle = 45;
@@ -24,8 +25,8 @@ const aspect = {
   height: window.innerHeight
 };
 
-// export const camera = new THREE.OrthographicCamera(-aspect.width / 2, aspect.width / 2, aspect.height / 2, -aspect.height / 2, 0.1, 1000);
-export const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
+export const camera = new THREE.OrthographicCamera(-aspect.width / 2, aspect.width / 2, aspect.height / 2, -aspect.height / 2, 0.1, 1000);
+// export const camera = new THREE.PerspectiveCamera(fov, aspect.width / aspect.height, 0.1, 1000);
 
 camera.position.set(0, 50, 10);
 camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -72,7 +73,15 @@ scene.add(plane);
 
 const Box = new THREE.BoxGeometry(2, 50.1, 1.1);
 
-const BoxMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+// const BoxMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+const BoxMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  roughness: 0.4,
+  metalness: 0.3,
+  emissive: 0xf88379,
+  emissiveIntensity: 0.15,
+  transparent: true 
+  });
 const BoxMesh = new THREE.Mesh(Box, BoxMaterial);
 
 BoxMesh.rotation.x = - Math.PI / 2;
@@ -86,84 +95,7 @@ scene.add(BoxMesh);
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 
-const lights = new Lights(scene);
-
-// const keys = {
-//   a: {
-//     pressed: false,
-//   },
-//   d: {
-//     pressed: false,
-//   },
-//   arrowup: {
-//     pressed: false,
-//   },
-//   arrowdown: {
-//     pressed: false,
-//   },
-//   s: {
-//     pressed: false,
-//   },
-//   w: {
-//     pressed: false,
-//   },
-//   shift: {
-//     pressed: false,
-//   },
-// };
-
-// document.addEventListener('keydown', (event) => {
-//   switch (event.key) {
-//   case 's':
-//     keys.s.pressed = true;
-//     break;
-//   case 'S':
-//     keys.s.pressed = true;
-//     break; 
-//   case 'w':
-//     keys.w.pressed = true;
-//     break;
-//   case 'W':
-//     keys.w.pressed = true;
-//     break ;
-//   case 'ArrowUp':
-//     keys.arrowup.pressed = true;
-//     break;
-//   case 'ArrowDown':
-//     keys.arrowdown.pressed = true;
-//     break;
-//   default:
-//     // console.log(event.key);
-//     break;
-//   }
-// });
-
-// document.addEventListener('keyup', (event) => {
-//   switch (event.key) {
-//   case 's':
-//     keys.s.pressed = false;
-//     break;
-//   case 'S':
-//       keys.s.pressed = false;
-//       break;
-//   case 'w':
-//     keys.w.pressed = false;
-//     break;
-//     case 'W':
-//       keys.w.pressed = false;
-//       break;
-//   case 'ArrowUp':
-//     keys.arrowup.pressed = false;
-//     break;
-//   case 'ArrowDown':
-//     keys.arrowdown.pressed = false;
-//     break;
-//   default:
-//     // console.log(event.key);
-//     break;
-//   }
-// });
-
+new Lights(scene);
 
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -173,200 +105,25 @@ window.addEventListener('resize', () => {
 
 const clock = new THREE.Clock();
 
-// function keyHandler(event) {
-//   let speedModifier = 0.9;
-//   if (keys.s.pressed)
-//      paddle2.position.z +=  speedModifier; 
-//    else if (keys.w.pressed)
-//      paddle2.position.z -=  speedModifier;
- 
-//    if (keys.arrowdown.pressed)
-//      paddle1.position.z += speedModifier;
-//    else if (keys.arrowup.pressed)
-//      paddle1.position.z -= speedModifier;
-// }
-
-// function PaddleLimits() {
-//   if (paddle1.position.z > 22)
-//     paddle1.position.z = 22;
-//   else if (paddle1.position.z < -22)
-//     paddle1.position.z = -22;
-
-//   if (paddle2.position.z > 22)
-//     paddle2.position.z = 22;
-//   else if (paddle2.position.z < -22)
-//     paddle2.position.z = -22;
-// }
-
 let animationFrameIdanimate;
 
 export function animate() {
   animationFrameIdanimate = requestAnimationFrame(animate);
  
   controls.update();
-  // Update sphere position based on keys
-  // const deltaTime = clock.getDelta();
-  // ball.update(deltaTime);
-  // keyHandler();
-  // PaddleLimits();
-
-  //  Check for collision
-  //  switch (isColliding(ball.mesh, paddle1.mesh))
-  //  {
-  //   case 1:
-  //     ball.velocity.x *= -1;
-  //     break;
-  //   case 2:
-  //     ball.velocity.z *= -1;
-  //     break;
-    
-  // }
-
-  //  switch (isColliding(ball.mesh, paddle2.mesh))
-  //  {
-  //     case 1:
-  //       ball.velocity.x *= -1;
-  //       break;
-  //     case 2:
-  //       ball.velocity.z *= -1;
-  //       break;
-  // }
-  // Render the scene
-  // paddle1.position.z = 20
   renderer.render(scene, camera);
 }
 
+const text = new Text(scene, 'GOAL!', './fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new THREE.Vector3(2, 0, 0), camera.position);
 
-const sleep = async (ms)  => {
-  await new Promise(resolve => {
-    return setTimeout(resolve, ms);
-  });
-};
-
-let animationFrameId;
-function animationBeforeGame() {
-  animationFrameId = requestAnimationFrame(animationBeforeGame);
-  // keyHandler();
-  // PaddleLimits();
-  renderer.render(scene, camera);
-}
-async function startCountdown() {
-  document.getElementById('countdown-container').style.visibility = 'visible';
-  let keys = document.getElementsByClassName('keys');
-  for (let i = 0; i < keys.length; i++) {
-    keys[i].style.visibility = 'visible';
-  }
-  await sleep(1000);
-  document.getElementById('countdown').textContent = '2';
-  await sleep(1000);
-  document.getElementById('countdown').textContent = '1';
-  await sleep(1000);
-  document.getElementById('countdown').textContent = 'GO!';
-  await sleep(1000);
-  document.getElementById('right-keys').hidden = true;
-  document.getElementById('left-keys').hidden = true;
-}
-
-export async function startGame() {
-  animationBeforeGame();
-  await startCountdown();
-  document.getElementById('right-keys').hidden = true;
-  document.getElementById('left-keys').hidden = true;
-  document.getElementById('countdown').hidden = true;
-  document.getElementById('score').style.visibility = 'visible';
-  ball.velocity = new THREE.Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(ball.speed);
-  
-  cancelAnimationFrame(animationFrameId);
-  start = true;
-}
-
-
-// if (!start) {
-//   startGame();
-// }
-// if (start) {
-//   animate();
-// }
-
-  // Create a new FontLoader instance
-const fontLoader = new FontLoader();
-
-// Load the font file
-fontLoader.load('./fonts/helvetiker_regular.typeface.json', function(font) {
-  // Create the text geometry with the loaded font
-  const textGeometry = new TextGeometry('GOAL!', {
-    font: font, // Use the loaded font here
-    size: 5,
-    depth: 1,
-    curveSegments: 12, // Optional: Adjusts the smoothness of the text
-  });
-
-  // Create a material for the text
-  const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
-  // Create a mesh from the text geometry and material
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-  // Optionally, set the position of the text
-  textMesh.position.set(0, 0, 0); // Adjust as needed
-
-  textMesh.lookAt(camera.position);
-  // Add the textMesh to your scene
-  // textMesh.visible = false
-  textMesh.name = 'goalText';
-  textMesh.position.set(-10, 0, 0);
-  textMesh.visible = false;
-  scene.add(textMesh);
-
-});
-
-// const text = new Text(scene, 'GOAL!', './fonts/helvetiker_regular.typeface.json', 5, 1, 0xffffff, 'goalText', new THREE.Vector3(0, 0, 0), camera.position);
-// text.show();
-
-ball.addEventListener('goal', (from) => {
-
-  scene.getObjectByName('goalText').visible = true;
-  if (from.player === 'player1') {
-    score.player1 += 1;
-  }
-  else if (from.player === 'player2') {
-    score.player2 += 1;
-  }
-  
-  function restart()
-  {
-    location.reload();
-  }
-
-  document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
-  console.log(score);
- 
-  if (score.player1 === MaxGoals || score.player2 === MaxGoals){
-    document.getElementById('score').textContent = `End of the game!`;
-    setTimeout(() => {
-      location.reload();
-    }, 2000);
-  }
-  else {
-    setTimeout(() => {
-      ball.velocity.x *= -1;
-      /* Random Display Direction */
-      ball.velocity.z = 10 * Math.random() * (Math.random() > 0.5 ? 1 : -1);
-      ball.position.set(0, 0, 0);
-      scene.getObjectByName('goalText').visible = false;
-      ball.mesh.visible = true;
-      console.log('Goal!');
-    }, 2000);
-  }
-});
 
 export function updatePaddlePosition(player)
 {
-    if (player.nb === 1 && paddle1 && start)
+    if (player.nb === 1 && paddle1)// && start))
     {
         paddle1.position.z = player.z;
     }
-    else if (player.nb === 2 && paddle2 && start)
+    else if (player.nb === 2 && paddle2)// && start)
     {
         paddle2.position.z = player.z;
     }
@@ -379,7 +136,6 @@ export function updateBallPosition(position)
   // console.log('updateBall');
 }
 
-
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   document.getElementById('up-mobile-button').style.visibility = 'visible';
   document.getElementById('down-mobile-button').style.visibility = 'visible';
@@ -391,12 +147,29 @@ export function changeCameraPosition(playerNb)
 {
   if (playerNb === 1)
   {
-    camera.position.set(-80, 5, 0);
+    camera.position.set(-50, 70, 0);
     // camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
   else if (playerNb === 2)
   {
-    camera.position.set(80, 5, 0);
+    camera.position.set(50, 70, 0);
     // camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
+}
+
+export function goal(PlayerNb)
+{
+  if (PlayerNb === 1)
+    score.player1 += 1;
+  else if (PlayerNb === 2)
+    score.player2 += 1;
+  document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
+  text.show();
+  ball.mesh.visible = false;
+}
+
+export function continueAfterGoal()
+{
+  text.hide();
+  ball.mesh.visible = true;
 }

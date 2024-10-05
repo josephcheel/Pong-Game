@@ -9,8 +9,14 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const cookie = require('cookie');
 const { start } = require('repl');
+// const { startGame } = require('./game');
 // const { default: isColliding } = require('./game/collision');
 
+const sleep = async (ms)  => {
+    await new Promise(resolve => {
+      return setTimeout(resolve, ms);
+    });
+  };
 class Vector3 {
     constructor(x, y, z)
     {
@@ -122,15 +128,30 @@ class Ball extends UserInput {
 // 		// set new position
 // 		this.position.copy(FinalPos);
 //     }   
-update(deltaTime) {
+async update(deltaTime) {
     const displacement = this.velocity.clone().multiplyScalar(deltaTime);
     const newPosition = this.position.clone().add(displacement);
-
+    
     // Check boundaries
-    if (Math.abs(newPosition.x) > this.boundaries.x - this.radius) {
+    if (Math.abs(newPosition.x) > this.boundaries.x - this.radius && !this.isGoal) {
         // Ball hit left or right wall
+        // console.log('Goal');
+        // console.log('Position:', newPosition);
+        // console.log('room:', this.room);
+        if (newPosition.x > 0)
+            io.to(this.room).emit('goal_scored', 1);
+        else
+            io.to(this.room).emit('goal_scored', 2 );
         this.isGoal = true;
-        this.velocity.x *= -1;
+        setTimeout(() => {
+            newPosition.x = 0;
+            newPosition.y = 0;
+            newPosition.z = 0;
+            this.velocity.x *= -1;
+            this.isGoal = false;
+            this.position.copy(newPosition);
+            io.to(this.room).emit('continue_after_goal');
+        }, 2000);
     }
 
     if (Math.abs(newPosition.z) > this.boundaries.y - this.radius) {
@@ -141,11 +162,7 @@ update(deltaTime) {
 
     this.position.copy(newPosition);
 
-    // if (this.isGoal) {
-    //     this.position.set(0, 0, 0);
-    //     this.isGoal = false;
-    //     // Emit goal event here
-    // }
+ 
 }
 }
 class Paddle extends UserInput {
@@ -330,19 +347,25 @@ const port = 4000;
 
 const app = express();
 
+// app.use(cors({
+//     origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+//     credentials: true
+// }));
+
 app.use(cors({
-    origin: ["https://admin.socket.io", "http://192.168.1.43/:4000", "http://localhost:4000", "http://localhost:5173"],
-    credentials: true
+    origin: "*",
+    // credentials: true
 }));
+
 
 const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: ["https://admin.socket.io", "http://192.168.1.43/:4000", "http://localhost:4000", "http://localhost:5173"], 
-        credentials: true
+        origin: "*", 
+        // credentials: true
     },
-    pingInterval: 2000, pingTimeout: 5000 
+    pingInterval: 2000, pingTimeout: 5000,
 });
 
 var players = {};
@@ -402,8 +425,8 @@ function setCookie(socket)
             path: '/', 
             expires: new Date(Date.now() + 240000).toUTCString(),
             // httpOnly: true, // Optional, helps with security
-            // sameSite: 'None', // Required for cross-site cookies
-            // secure: true // Required for SameSite=None
+            sameSite: 'None', // Required for cross-site cookies
+            secure: true // Required for SameSite=None
         } // Set expiration, path, etc.
     },
     {
@@ -412,9 +435,32 @@ function setCookie(socket)
         options: {
             path: '/', 
             expires: new Date(Date.now() + 240000).toUTCString(),
+            sameSite: 'None',
+            secure: true
         }
     },
     ]);
+}
+
+async function startCountdown(room) {
+    console.log('Start Countdown');
+
+    // await sleep(1000);
+    io.to(room).emit('countdown-3');
+    await sleep(1000);
+    io.to(room).emit('countdown-2');
+    await sleep(1000);
+    io.to(room).emit('countdown-1');
+    await sleep(1000);
+    io.to(room).emit('countdown-GO');
+    await sleep(1000);
+    io.to(room).emit('countdown-end');
+  }
+  
+async function startGame(room, socketId, KeyPlayer1) {
+    await startCountdown(room);
+    balls[room].ball.velocity = new Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(balls[room].ball.speed);
+    io.to(room).emit('startGame', { player1: players[socketId], player2: players[KeyPlayer1], ball: balls[room] });
 }
 
 io.on("connection", (socket) => {
@@ -456,9 +502,10 @@ io.on("connection", (socket) => {
         players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
         players[socket.id].id = socket.id;
         players[socket.id].nb = 2;
-        let tmpBall = new Ball(new Vector3(1, 0, 0), new Vector3(1, 0, 0.5));
+        let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0,0,0));//new Vector3(1, 0, 0.5));
         let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
         players[socket.id].room = players[KeyPlayer1].room;
+        tmpBall.room = players[KeyPlayer1].room;
         balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
         players[KeyPlayer1].isWaiting = false;
 
@@ -467,6 +514,7 @@ io.on("connection", (socket) => {
         socket.join(players[socket.id].room);
         setCookie(socket)
         
+        startGame(players[socket.id].room, socket.id, KeyPlayer1);
         io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
     }
 

@@ -1,7 +1,11 @@
 import io from 'socket.io-client';
-import { changeCameraPosition, updatePaddlePosition, updateBallPosition, startGame, animate } from './index.js';
+import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal } from './index.js';
+
 // import { camera } from './index.js';
-const socket = io('ws://192.168.1.43:4000');
+// const socket = io('ws://192.168.1.43:4000', {
+const socket = io("ws://192.168.1.36:4000", {
+	// withCredentials: true,
+});
 
 
 let PlayerNb = undefined;
@@ -33,6 +37,7 @@ const keys = {
 
 socket.on('connect', () => {
 	console.log('Connected to server');
+	
 	// socket.emit('chat message', 'Hello from client');
 	
 	socket.on('set-cookie', (cookies) => {
@@ -43,33 +48,70 @@ socket.on('connect', () => {
 		}
 	});
 	
+	socket.on('countdown-3', () => {
+		document.getElementById('countdown-container').style.visibility = 'visible';
+		let keys = document.getElementsByClassName('keys');
+		for (let i = 0; i < keys.length; i++) 
+			keys[i].style.visibility = 'visible';
+	});
+
+	socket.on('countdown-2', () => {
+		// document.getElementById('countdown-container').style.visibility = 'visible';
+		
+		document.getElementById('countdown').textContent = '2';
+	});
+
+	socket.on('countdown-1', () => {
+		document.getElementById('countdown').textContent = '1';
+	});
+
+	socket.on('countdown-GO', () => {
+		document.getElementById('countdown').textContent = 'GO!';
+		
+	});
+
+	socket.on('countdown-end', () => {
+		document.getElementById('right-keys').hidden = true;
+		document.getElementById('left-keys').hidden = true;
+		document.getElementById('countdown').hidden = true;
+		document.getElementById('score').style.visibility = 'visible';
+	});
 	socket.on('startGame', (data) => {
 		if (data.player1.id === socket.id) {
 			PlayerNb = 1;
+			changeCameraPosition(1);
+			// console.log('Player 1');
 			// camera.position.set(60, 5, 0);
 		}
 		else
+		{
+			changeCameraPosition(2);
+			// console.log('Player 2');
 			// camera.position.set(-60, 5, 0);
 			PlayerNb = 2;
+		}
+		
 		let elements = document.getElementsByClassName('waiting-screen');
 
 		for (let i = 0; i < elements.length; i++) {
-		elements[i].style.display = 'none';
+			elements[i].style.display = 'none';
 		}
-		startGame();
+		
+		// startGame();
 		animate();
 		
 		console.log('Game has started');
 		console.log(PlayerNb);
 		// if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {	
-			if (PlayerNb === 1)
-				changeCameraPosition(1);
-				// camera.position.set(-80, 5, 0);
-			else if (PlayerNb === 2)
-				changeCameraPosition(2);
+			// if (PlayerNb === 1)
+			// 	changeCameraPosition(1);
+			// // 	// camera.position.set(-80, 5, 0);
+			// else if (PlayerNb === 2)
+			// 	changeCameraPosition(2);
 			// camera.lookAt(new THREE.Vector3(0, 0, 0));
 			// camera.fov = 150;
 		// }
+		
 	});
 
 	socket.on('reconnect', (data) => {
@@ -83,13 +125,14 @@ socket.on('connect', () => {
 		// console.log(data);
 		// if (data.id !== socket.id) {
 			updatePaddlePosition(player)
-			// console.log('padlle1:', paddle1);
-			// console.log('padlle2:', paddle2);
-		// }
 	});
 
-	socket.on('goal', (data) => {
-		console.log('Goal');
+	socket.on('goal_scored', (PlayerNb) => {
+		goal(PlayerNb);
+	});
+
+	socket.on('continue_after_goal', () => {
+		continueAfterGoal()
 	});
 	socket.on('updateBall', (position) => {
 		updateBallPosition(position);
@@ -98,7 +141,7 @@ socket.on('connect', () => {
 		console.log('Disconnected from server');
 	});
 
-	window.addEventListener('keydown', (event) => {
+	document.addEventListener('keydown', (event) => {
 		switch (event.key) {
 		case 's':
 			keys.s.pressed = true;

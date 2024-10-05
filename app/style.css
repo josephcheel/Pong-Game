@@ -1,6 +1,15 @@
+html, body {
+  overflow: hidden;
+}
+
+
 body {
+  user-select: none;           /* Disallow text selection */
+  -webkit-user-select: none;   /* Safari */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer */
   margin: 0;
-  height: 100%;
+  /* height: 100%; */
 }
 canvas {
   display: block;
