@@ -258,8 +258,6 @@ async function startCountdown() {
   await sleep(1000);
   document.getElementById('countdown').textContent = 'GO!';
   await sleep(1000);
-  document.getElementById('right-keys').hidden = true;
-  document.getElementById('left-keys').hidden = true;
 }
 
 async function startGame() {
