@@ -3,8 +3,8 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
-const socket = io("ws://localhost:4000", {
-	withCredentials: true,
+const socket = io("ws://10.12.250.206:4000", {
+	// withCredentials: true,
 });
 
 
@@ -78,19 +78,19 @@ socket.on('connect', () => {
 		document.getElementById('score').style.visibility = 'visible';
 	});
 	socket.on('startGame', (data) => {
-		if (data.player1.id === socket.id) {
-			PlayerNb = 1;
-			changeCameraPosition(1);
-			// console.log('Player 1');
-			// camera.position.set(60, 5, 0);
-		}
-		else
-		{
-			changeCameraPosition(2);
-			// console.log('Player 2');
-			// camera.position.set(-60, 5, 0);
-			PlayerNb = 2;
-		}
+		// if (data.player1.id === socket.id) {
+		// 	PlayerNb = 1;
+		// 	changeCameraPosition(1);
+		// 	// console.log('Player 1');
+		// 	// camera.position.set(60, 5, 0);
+		// }
+		// else
+		// {
+		// 	changeCameraPosition(2);
+		// 	// console.log('Player 2');
+		// 	// camera.position.set(-60, 5, 0);
+		// 	PlayerNb = 2;
+		// }
 		
 		let elements = document.getElementsByClassName('waiting-screen');
 
@@ -149,6 +149,9 @@ socket.on('connect', () => {
 	
 	socket.on('endGame', () => {
 		endGame();
+	});
+	socket.on('closeTheGame', () => {
+		location.reload();
 	});
 	socket.on('colision-paddle', () => {
 		playPaddleCollision();

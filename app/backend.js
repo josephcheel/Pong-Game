@@ -158,6 +158,7 @@ async update(deltaTime) {
             if (this.score.player1 === MAX_GOALS)
             {
                 io.to(this.room).emit('endGame', 1);
+                io.to(this.room).emit('closeTheGame');
                 io.to(this.room).socketsLeave(this.room);
             }
             else
@@ -169,6 +170,8 @@ async update(deltaTime) {
             if (this.score.player2 === MAX_GOALS)
             {
                 io.to(this.room).emit('endGame', 2);
+                io.to(this.room).emit('closeTheGame');
+                io.to(this.room).socketsLeave(this.room);
             }
                 else
                 io.to(this.room).emit('goal_scored', 2);
@@ -382,23 +385,23 @@ const port = 4000;
 
 const app = express();
 
-app.use(cors({
-    origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
-    credentials: true
-}));
-
 // app.use(cors({
-//     origin: "*",
-//     // credentials: true
+//     origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+//     credentials: true
 // }));
+
+app.use(cors({
+    origin: "*",
+    // credentials: true
+}));
 
 
 const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        // origin: "*", 
-        origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+        origin: "*", 
+        // origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
         credentials: true
     },
     pingInterval: 2000, pingTimeout: 5000,
