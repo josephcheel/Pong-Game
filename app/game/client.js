@@ -1,9 +1,24 @@
 import io from 'socket.io-client';
 import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision } from './index.js';
+// import * as os from 'os'
+
+// const interfaces = os.networkInterfaces();
+// let ipAddress;
+// for (const inter in interfaces) {
+//     for (const details of interfaces[inter]) {
+//         // Check if the address is an IPv4 address and not a loopback address
+//         if (details.family === 'IPv4' && !details.internal) {
+//             ipAddress = details.address;
+//             break;
+//         }
+//     }
+//     if (ipAddress) break;
+// }
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
-const socket = io("ws://10.12.250.206:4000", {
+const socket = io("ws://localhost:9000", {
+	
 	// withCredentials: true,
 });
 

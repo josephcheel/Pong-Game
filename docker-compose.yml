@@ -1,13 +1,28 @@
 ########## SERVICES ##########
 services:
-#### Pong Game ####
-  pong-game:
-    container_name: pong-game
-    build: .
-    image: pong-game-img
+#### Pong Game Client ####
+  pong-game-client:
+    container_name: pong-game-client
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    image: pong-game-client-img
     restart: always
     ports:
-      - 4000:4000
+      - 3000:3000
+    networks:
+      - my-network
+
+#### Pong Game Server ####
+  pong-game-server:
+    container_name: pong-game-server
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    image: pong-game-server-img
+    restart: always
+    ports:
+      - 9000:4000
     networks:
       - my-network
 

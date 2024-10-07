@@ -37,7 +37,7 @@ clean-cache:
 	@echo "$(ERROR_COLOR)Cleaning Docker cache$(NO_COLOR)"
 	@docker system prune -a
 
-re : down up
+re : down-all up
 
 
 .PHONY: all up down down-all re-img clean-cache
