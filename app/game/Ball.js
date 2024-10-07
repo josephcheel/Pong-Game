@@ -58,25 +58,25 @@ export default class Ball extends EventDispatcher {
 		const FinalPos = this.position.clone().add(displacement);
 
 		this.boundaries = { x: 50, y: 25 };
-		const dx = this.boundaries.x - this.radius - Math.abs(this.mesh.position.x);
-		const dz = this.boundaries.y - this.radius - Math.abs(this.mesh.position.z);
+		const dx = this.boundaries.x - this.radius - Math.abs(FinalPos.x);
+		const dz = this.boundaries.y - this.radius - Math.abs(FinalPos.z);
 
 		if (dx <= 0 && this.mesh.visible) {
 			this.mesh.visible = false
-			FinalPos.x = 0;
-			FinalPos.y = 0;
-			FinalPos.z = 0;
-			if (this.mesh.position.x > 0) {
+			if (FinalPos.x > 0) {
 				this.dispatchEvent({ type: 'goal', player: 'player1' })
-
+				
 			}
 			else {
 				this.dispatchEvent({ type: 'goal', player: 'player2' })
 			}
+			FinalPos.x = 0;
+			FinalPos.y = 0;
+			FinalPos.z = 0;
 		}
 
 		if (dz <= 0) {
-			const z = this.mesh.position.z;
+			const z = FinalPos.z;
 			// const message = z > 0 ? 'pc' : 'player'
 			// this.dispatchEvent({ type: 'ongoal', message: message })
 			// sound.play();
@@ -84,7 +84,7 @@ export default class Ball extends EventDispatcher {
 				this.wallSound.play();
 			}
 			FinalPos.z =
-				(this.boundaries.y - this.radius + dz) * Math.sign(this.mesh.position.z);
+				(this.boundaries.y - this.radius + dz) * Math.sign(FinalPos.z);
 			this.velocity.z *= -1;
 		}
 
