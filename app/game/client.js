@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
-import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal } from './index.js';
+import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision } from './index.js';
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
-const socket = io("ws://192.168.1.36:4000", {
-	// withCredentials: true,
+const socket = io("ws://localhost:4000", {
+	withCredentials: true,
 });
 
 
@@ -40,6 +40,7 @@ socket.on('connect', () => {
 	
 	// socket.emit('chat message', 'Hello from client');
 	
+	document.getElementById('countdown-container').style.visibility = 'hidden';
 	socket.on('set-cookie', (cookies) => {
 		console.log('Setting cookies', cookies);
 		for (let cookie of cookies) {
@@ -141,6 +142,21 @@ socket.on('connect', () => {
 		console.log('Disconnected from server');
 	});
 
+	socket.on('roomLeft', (message) => {
+		console.log(message); // This will log 'You have been removed from the room'
+		alert('You have left the room.');
+	  });
+	
+	socket.on('endGame', () => {
+		endGame();
+	});
+	socket.on('colision-paddle', () => {
+		playPaddleCollision();
+	});
+
+	socket.on('colision-wall', () => {
+		playWallCollision();
+	});
 	document.addEventListener('keydown', (event) => {
 		switch (event.key) {
 		case 's':

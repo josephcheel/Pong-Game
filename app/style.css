@@ -1,5 +1,7 @@
-html, body {
+body {
   overflow: hidden;
+  margin: 0;
+  height: 100%;
 }
 
 
@@ -145,4 +147,43 @@ body {
   padding: 10px;
   justify-content: center;
   align-items: center;
+}
+
+#volume {
+  position: absolute;
+  opacity: 0;
+  right: 10%;
+  top : 5%;
+  /* border: black; */
+  cursor: pointer;
+  height: 3em;
+  width: 3em;
+  z-index: 1
+}
+
+#mute {
+  position: absolute;
+  display: none;
+  z-index: 0;
+  height: 2em;
+  width: 2em;
+  right: 10%;
+  top : 5%;
+}
+
+#unmute {
+  position: absolute;
+  z-index: 0;
+  height: 2em;
+  width: 2em;
+  right: 10%;
+  top : 5%;
+}
+
+#volume:checked ~ #mute {
+  display: block;
+}
+
+#volume:checked ~ #unmute {
+  display: none;
 }

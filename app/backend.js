@@ -1,16 +1,29 @@
-const express = require('express');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
-// const { hash } = require('crypto');
-const crypto = require('crypto');
-const { instrument } = require('@socket.io/admin-ui');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const cookie = require('cookie');
-const { start } = require('repl');
+// const express = require('express');
+// const { createServer } = require('http');
+// const { Server } = require('socket.io');
+// const path = require('path');
+// // const { hash } = require('crypto');
+// const crypto = require('crypto');
+// const { instrument } = require('@socket.io/admin-ui');
+// const cors = require('cors');
+// const cookieParser = require('cookie-parser');
+// const cookie = require('cookie');
+// const { start } = require('repl');
 // const { startGame } = require('./game');
 // const { default: isColliding } = require('./game/collision');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import path from 'path';
+// import { hash } from 'crypto';  // Commented out as in original
+import crypto from 'crypto';
+import { instrument } from '@socket.io/admin-ui';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import cookie from 'cookie';
+import { start } from 'repl';
+/* VARIABLES */
+const MAX_GOALS = 2;
 
 const sleep = async (ms)  => {
     await new Promise(resolve => {
@@ -92,6 +105,7 @@ class Ball extends UserInput {
         this.velocity.multiplyScalar(this.speed);
         this.isGoal = false;
         this.boundaries = { x: 50, y: 25 };
+        this.score = { player1: 0, player2: 0 };
     }
 //     update(deltaTime)
 //     {
@@ -139,9 +153,26 @@ async update(deltaTime) {
         // console.log('Position:', newPosition);
         // console.log('room:', this.room);
         if (newPosition.x > 0)
-            io.to(this.room).emit('goal_scored', 1);
+        {
+            this.score.player1++;
+            if (this.score.player1 === MAX_GOALS)
+            {
+                io.to(this.room).emit('endGame', 1);
+                io.to(this.room).socketsLeave(this.room);
+            }
+            else
+                io.to(this.room).emit('goal_scored', 1);
+        }
         else
-            io.to(this.room).emit('goal_scored', 2 );
+        {    
+            this.score.player2++;
+            if (this.score.player2 === MAX_GOALS)
+            {
+                io.to(this.room).emit('endGame', 2);
+            }
+                else
+                io.to(this.room).emit('goal_scored', 2);
+        }
         this.isGoal = true;
         setTimeout(() => {
             newPosition.x = 0;
@@ -158,6 +189,8 @@ async update(deltaTime) {
         // Ball hit top or bottom wall
         this.velocity.z *= -1;
         newPosition.z = Math.sign(newPosition.z) * (this.boundaries.y - this.radius);
+        if (this.room !== undefined)
+            io.to(this.room).emit('colision-wall');
     }
 
     this.position.copy(newPosition);
@@ -266,8 +299,10 @@ class Paddle extends UserInput {
             // Determine collision side
             if (Math.abs(ball.position.x - paddleLeft) < ball.radius || 
                 Math.abs(ball.position.x - paddleRight) < ball.radius) {
+                    io.to(this.room).emit('colision-paddle');
                 return 1; // Collision on X-axis
             } else {
+                io.to(this.room).emit('colision-paddle');
                 return 2; // Collision on Z-axis
             }
         }
@@ -347,23 +382,24 @@ const port = 4000;
 
 const app = express();
 
-// app.use(cors({
-//     origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
-//     credentials: true
-// }));
-
 app.use(cors({
-    origin: "*",
-    // credentials: true
+    origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+    credentials: true
 }));
+
+// app.use(cors({
+//     origin: "*",
+//     // credentials: true
+// }));
 
 
 const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*", 
-        // credentials: true
+        // origin: "*", 
+        origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+        credentials: true
     },
     pingInterval: 2000, pingTimeout: 5000,
 });
@@ -559,7 +595,7 @@ app.use(cookieParser());
 //     next();
 // });
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join()));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

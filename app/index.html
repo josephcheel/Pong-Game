@@ -4,16 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pong</title>
+  <link rel="icon" href="./assets/icons/favicon.png" type="image/png" sizes="any">
+  <link rel="icon" href="./assets/icons/icon-16.ico" type="image/x-icon" sizes="16x16">
+  <link rel="icon" href="./assets/icons/icon-32.ico" type="image/x-icon" sizes="32x32">
+  <link rel="icon" href="./assets/icons/icon-48.ico" type="image/x-icon" sizes="48x48">
+  <link rel="icon" href="./assets/icons/icon-64.ico" type="image/x-icon" sizes="64x64">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script type="module" src="./game/client.js" ></script>
+  <script type="module" src="./game/index.js" ></script>
 </head>
 <body>
+  
   <header>
     <h1 id="score">Score 0 - 0 </h1>
+    <input type="checkbox" id="volume">
+      <img src="./assets/icons/mute.svg" alt="volume mute" id="mute" >
+      <img src="./assets/icons/unmute.svg" alt="volume unmute" id="unmute" >
+    </input>
   </header>
-
 
   <div class="waiting-screen" id="loading">
     <img src="./line-md--loading-twotone-loop.svg" alt="loading">
@@ -22,28 +33,28 @@
     <h1>Waiting for players...</h1>
   </div>
 
-
   <section> 
-    <div id="countdown-container">
+    <aside id="countdown-container">
     <h1 id="countdown">3</h1>
-  </div>
-  <div id="left-keys">
+  </aside>
+  <aside id="left-keys">
     <h2 class="keys">W</h2>
     <h2 class="keys">S</h2>
-  </div>
-  <div id="right-keys">
+  </aside>
+  <aside id="right-keys">
     <h2 class="keys">↑</h2>
     <h2 class="keys">↓</h2>
-  </div>
-
-  <div data-testid="joystick-base" id="up-mobile-button"  style="border-radius: 100px; height: 100px; width: 100px; background: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; visibility: hidden;">
-    <button  style="border-radius: 100px; background: rgba(255, 255, 255, 0.5); cursor: move; height: 66.6667px; width: 66.6667px; border: none; flex-shrink: 0; touch-action: none;"></button>
-  </div>
-  <div data-testid="joystick-base" id="down-mobile-button"  style="border-radius: 100px; height: 100px; width: 100px; background: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; visibility: hidden;">
-    <button  style="border-radius: 100px; background: rgba(255, 255, 255, 0.5); cursor: move; height: 66.6667px; width: 66.6667px; border: none; flex-shrink: 0; touch-action: none;"></button>
-  </div>
+  </aside>
 </section>
-<script type="module" src="./game/client.js" ></script>
-<script type="module" src="./game/index.js" ></script>
+
+<div id="canvas"></div>
+
+<div data-testid="joystick-base" id="up-mobile-button"  style="border-radius: 100px; height: 100px; width: 100px; background: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; visibility: hidden;">
+  <button  style="border-radius: 100px; background: rgba(255, 255, 255, 0.5); cursor: move; height: 66.6667px; width: 66.6667px; border: none; flex-shrink: 0; touch-action: none;"></button>
+</div>
+<div data-testid="joystick-base" id="down-mobile-button"  style="border-radius: 100px; height: 100px; width: 100px; background: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; visibility: hidden;">
+  <button  style="border-radius: 100px; background: rgba(255, 255, 255, 0.5); cursor: move; height: 66.6667px; width: 66.6667px; border: none; flex-shrink: 0; touch-action: none;"></button>
+</div>
+
 </body>
 </html>
