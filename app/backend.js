@@ -478,11 +478,11 @@ function setCookie(socket)
     ]);
 }
 
-async function startCountdown(room) {
+async function startCountdown(room, player1, player2) {
     console.log('Start Countdown');
 
     // await sleep(1000);
-    io.to(room).emit('countdown-3');
+    io.to(room).emit('countdown-3', {player1: players[player1], player2: players[player2]});
     await sleep(1000);
     io.to(room).emit('countdown-2');
     await sleep(1000);
@@ -494,7 +494,7 @@ async function startCountdown(room) {
   }
   
 async function startGame(room, socketId, KeyPlayer1) {
-    await startCountdown(room);
+    await startCountdown(room, socketId, KeyPlayer1);
     balls[room].ball.velocity = new Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(balls[room].ball.speed);
     io.to(room).emit('startGame', { player1: players[socketId], player2: players[KeyPlayer1], ball: balls[room] });
 }

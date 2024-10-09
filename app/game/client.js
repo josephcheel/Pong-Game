@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision } from './index.js';
+import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision, visibleLightPlayer, before_start_light, start_light} from './index.js';
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
@@ -39,7 +39,6 @@ socket.on('connect', () => {
 	console.log('Connected to server');
 	
 	// socket.emit('chat message', 'Hello from client');
-	
 	document.getElementById('countdown-container').style.visibility = 'hidden';
 	socket.on('set-cookie', (cookies) => {
 		console.log('Setting cookies', cookies);
@@ -49,11 +48,18 @@ socket.on('connect', () => {
 		}
 	});
 	
-	socket.on('countdown-3', () => {
+	socket.on('countdown-3', (players) => {
 		document.getElementById('countdown-container').style.visibility = 'visible';
 		let keys = document.getElementsByClassName('keys');
 		for (let i = 0; i < keys.length; i++) 
 			keys[i].style.visibility = 'visible';
+		console.log(players)
+		before_start_light()
+		if (players.player1.id == socket.id)
+			visibleLightPlayer(1)
+		else if (players.player2.id == socket.id)
+			visibleLightPlayer(2)
+		
 	});
 
 	socket.on('countdown-2', () => {
@@ -68,29 +74,32 @@ socket.on('connect', () => {
 
 	socket.on('countdown-GO', () => {
 		document.getElementById('countdown').textContent = 'GO!';
+		console.log("SOMETHING")
 		
 	});
 
 	socket.on('countdown-end', () => {
+		start_light()
 		document.getElementById('right-keys').hidden = true;
 		document.getElementById('left-keys').hidden = true;
 		document.getElementById('countdown').hidden = true;
 		document.getElementById('score').style.visibility = 'visible';
+		console.log("AJKDKAJSAKD")
 	});
 	socket.on('startGame', (data) => {
-		if (data.player1.id === socket.id) {
-			PlayerNb = 1;
-			changeCameraPosition(1);
-			// console.log('Player 1');
-			// camera.position.set(60, 5, 0);
-		}
-		else
-		{
-			changeCameraPosition(2);
-			// console.log('Player 2');
-			// camera.position.set(-60, 5, 0);
-			PlayerNb = 2;
-		}
+		// if (data.player1.id === socket.id) {
+		// 	PLAYER = 1;
+		// 	changeCameraPosition(1);
+		// 	// console.log('Player 1');
+		// 	// camera.position.set(60, 5, 0);
+		// }
+		// else
+		// {
+		// 	changeCameraPosition(2);
+		// 	// console.log('Player 2');
+		// 	// camera.position.set(-60, 5, 0);
+		// 	PLAYER = 2;
+		// }
 		
 		let elements = document.getElementsByClassName('waiting-screen');
 
