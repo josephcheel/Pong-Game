@@ -1,21 +1,7 @@
-// const express = require('express');
-// const { createServer } = require('http');
-// const { Server } = require('socket.io');
-// const path = require('path');
-// // const { hash } = require('crypto');
-// const crypto = require('crypto');
-// const { instrument } = require('@socket.io/admin-ui');
-// const cors = require('cors');
-// const cookieParser = require('cookie-parser');
-// const cookie = require('cookie');
-// const { start } = require('repl');
-// const { startGame } = require('./game');
-// const { default: isColliding } = require('./game/collision');
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
-// import { hash } from 'crypto';  // Commented out as in original
 import crypto from 'crypto';
 import { instrument } from '@socket.io/admin-ui';
 import cors from 'cors';
@@ -106,6 +92,7 @@ class Ball extends UserInput {
         this.isGoal = false;
         this.boundaries = { x: 50, y: 25 };
         this.score = { player1: 0, player2: 0 };
+        this.finished = false;
     }
 //     update(deltaTime)
 //     {
@@ -160,6 +147,12 @@ async update(deltaTime) {
                 io.to(this.room).emit('endGame', 1);
                 io.to(this.room).emit('closeTheGame');
                 io.to(this.room).socketsLeave(this.room);
+                for (let id in players)
+                {
+                    if (players[id].room == this.room)
+                        delete players[id];
+                }
+                this.finished = true;
             }
             else
                 io.to(this.room).emit('goal_scored', 1);
@@ -172,9 +165,17 @@ async update(deltaTime) {
                 io.to(this.room).emit('endGame', 2);
                 io.to(this.room).emit('closeTheGame');
                 io.to(this.room).socketsLeave(this.room);
+                for (let id in players)
+                {
+                    if (players[id].room == this.room)
+                        delete players[id];
+                    // if (balls[this.room])
+                        // delete balls[this.room];
+                }
+                this.finished = true;
             }
-                else
-                io.to(this.room).emit('goal_scored', 2);
+            else
+            io.to(this.room).emit('goal_scored', 2);
         }
         this.isGoal = true;
         setTimeout(() => {
@@ -418,6 +419,8 @@ let lastTickTime = Date.now();
 
 function GameLoop()
 {
+    console.log('NBR OF BALLS', Object.keys(balls).length)
+    console.log('NBR OF PLAYERS', Object.keys(players).length);
     const currentTime = Date.now();
     const deltaTime = (currentTime - lastTickTime) / 1000; // Time difference in seconds
     lastTickTime = currentTime;
@@ -430,7 +433,6 @@ function GameLoop()
     
             if (balls[players[playerId].room])
             {
-
                 switch (players[playerId].handleCollision(balls[players[playerId].room].ball))
                 {
                     case 1:
@@ -445,7 +447,11 @@ function GameLoop()
     }       
     for (let id in balls)
     {
-        
+        if (balls[id].ball.finished == true)
+        {
+            delete balls[id];
+            continue
+        }
         balls[id].ball.update(deltaTime);
         io.to(id).emit('updateBall', balls[id].ball.position);
     }
@@ -501,6 +507,28 @@ async function startGame(room, socketId, KeyPlayer1) {
     balls[room].ball.velocity = new Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(balls[room].ball.speed);
     io.to(room).emit('startGame', { player1: players[socketId], player2: players[KeyPlayer1], ball: balls[room] });
 }
+
+const Tournaments = io.of('/tournaments');
+
+Tournaments.on('connection', (socket) => {
+    console.log("new user connected to Tournaments")
+    socket.on('disconnect', () => {
+        console.log("user disconnedted");
+    })
+});
+
+const CreateTournament = io.of('/tournaments/create');
+
+CreateTournament.on('connection', (socket) => {
+    console.log("create New Tournament")
+})
+
+Tournaments.on('connection', (socket) => {
+    console.log("new user connected to Tournaments")
+    socket.on('disconnect', () => {
+        console.log("user disconnedted");
+    })
+});
 
 io.on("connection", (socket) => {
     console.log('New Connection');
@@ -571,9 +599,14 @@ io.on("connection", (socket) => {
     // socket.emit('updatePositions', positions, balls);
 
     socket.on('disconnect', () => {
-        console.log('Disconnected:', socket.id);
-        players[socket.id].connected = false;
-    //     const room =io.sockets.adapter.rooms.get(players[socket.id].room);
+        // console.log('Disconnected:', socket.id);
+        if (players[socket.id])
+        {
+            if (players[socket.id].isWaiting == true)
+                delete players[socket.id]
+            
+        }
+            //     const room =io.sockets.adapter.rooms.get(players[socket.id].room);
     //    console.log('Room:', room);
     //     if (room && room.size === 1)
     //    {
