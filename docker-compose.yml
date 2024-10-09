@@ -9,7 +9,7 @@ services:
     image: pong-game-client-img
     restart: always
     ports:
-      - 3000:3000
+      - 0.0.0.0:3000:3000
     networks:
       - my-network
 
@@ -22,7 +22,7 @@ services:
     image: pong-game-server-img
     restart: always
     ports:
-      - 9000:4000
+      - 0.0.0.0:9000:4000
     networks:
       - my-network
 

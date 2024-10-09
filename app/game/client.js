@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision } from './index.js';
+import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate, continueAfterGoal, goal, endGame, playPaddleCollision, playWallCollision, before_start_light, start_light, visibleFollowPlayer } from './index.js';
 // import * as os from 'os'
 
 // const interfaces = os.networkInterfaces();
@@ -17,7 +17,7 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
-const socket = io("ws://localhost:9000", {
+const socket = io("ws://10.12.6.5:9000", {
 	
 	// withCredentials: true,
 });
@@ -64,11 +64,16 @@ socket.on('connect', () => {
 		}
 	});
 	
-	socket.on('countdown-3', () => {
+	socket.on('countdown-3', (players) => {
 		document.getElementById('countdown-container').style.visibility = 'visible';
 		let keys = document.getElementsByClassName('keys');
 		for (let i = 0; i < keys.length; i++) 
 			keys[i].style.visibility = 'visible';
+		before_start_light()
+		if (players.player1.id == socket.id)
+			visibleFollowPlayer(1)
+		else if (players.player2.id == socket.id)
+			visibleFollowPlayer(2)
 	});
 
 	socket.on('countdown-2', () => {
@@ -87,6 +92,7 @@ socket.on('connect', () => {
 	});
 
 	socket.on('countdown-end', () => {
+		start_light()
 		document.getElementById('right-keys').hidden = true;
 		document.getElementById('left-keys').hidden = true;
 		document.getElementById('countdown').hidden = true;

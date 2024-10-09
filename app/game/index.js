@@ -14,7 +14,7 @@ import Clouds from './Clouds.js';
 /* Variables */
 const CENTER_DISTANCE_TO_PADDLE = 45;
 var score = {player1: 0, player2: 0};
-
+export var PLAYER = 0
 
 
 
@@ -93,7 +93,7 @@ new Clouds(scene);
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 
-new Lights(scene);
+const lights = new Lights(scene);
 
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -107,8 +107,50 @@ let animationFrameIdanimate;
 export function animate() {
   animationFrameIdanimate = requestAnimationFrame(animate);
  
+  if (PLAYER)
+      visibleFollowPlayer(PLAYER)
   controls.update();
   renderer.render(scene, camera);
+}
+
+export function visibleFollowPlayer(playerNb)
+{
+  if (playerNb == 2)
+  {
+    lights.spotLight.target.position.set(paddle1.position.x, paddle1.position.y, paddle1.position.z )
+    console.log("PLAYER1")
+    PLAYER = 2
+    // scene.add(lights.spotLight.target)
+  }
+  else if (playerNb == 1)
+  {
+    
+    lights.spotLight.target.position.set(paddle2.position.x, paddle2.position.y, paddle2.position.z);
+    // scene.add(lights.spotLight.target);
+    PLAYER = 1
+    console.log("PLAYER2")
+  }
+  // lights.spotLight.visible = true;
+  lights.spotLight.intensity = 50000
+}
+
+export function before_start_light()
+{
+  lights.directionalLight.visible = false;
+  lights.recLight.visible = false;
+  lights.recLight2.visible = false;
+  lights.spotLight.visible = true
+}
+
+export function start_light()
+{
+  lights.directionalLight.visible = true;
+  lights.recLight.visible = true;
+  lights.recLight2.visible = true;
+  lights.spotLight.visible = false
+  lights.spotLight.intensity = 7000
+  lights.spotLight.target.position.set(0,0,0)
+  PLAYER = 0
 }
 
 const text = new Text(scene, 'GOAL!', './assets/fonts/kenney_rocket_regular.json', 5, 1, 0xFFF68F, 'goalText', new THREE.Vector3(2, 0, 0), camera.position);
@@ -161,6 +203,7 @@ export function goal(PlayerNb)
   else if (PlayerNb === 2)
     score.player2 += 1;
   document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
+  lights.spotLight.visible = true
   text.show();
   goalSound.play();
   ball.mesh.visible = false;
@@ -180,6 +223,7 @@ export function endGame()
 
 export function continueAfterGoal()
 {
+  lights.spotLight.visible = false
   text.hide();
   ball.mesh.visible = true;
 }
