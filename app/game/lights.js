@@ -45,7 +45,7 @@ export default class Light {
 		
 		this.spotLight = new SpotLight(0xffffff, 8000);
 		this.spotLight.position.set(-10, 100, 20);
-		this.spotLight.angle = Math.PI / 20; // Narrow beam angle
+		this.spotLight.angle = Math.PI / 40; // Narrow beam angle
 		this.spotLight.penumbra = 0.1; // Soft edges
 		this.spotLight.decay = 2; // Light decay over distance
 		this.spotLight.distance = 200; // Maximum range of the light

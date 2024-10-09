@@ -52,7 +52,7 @@ renderer.shadowMap.enabled = true;
 document.getElementById('canvas').appendChild(renderer.domElement);
 // resizeCanvas();
 
-
+scene.fog = new THREE.Fog(0xffffff, 0.1, 200)
 
 
 /* Listener for the camera */
@@ -136,7 +136,7 @@ export function visibleFollowPlayer(playerNb)
 
 export function before_start_light()
 {
-  lights.directionalLight.visible = false;
+  lights.directionalLight.visible = true;
   lights.recLight.visible = false;
   lights.recLight2.visible = false;
   lights.spotLight.visible = true
@@ -147,9 +147,11 @@ export function start_light()
   lights.directionalLight.visible = true;
   lights.recLight.visible = true;
   lights.recLight2.visible = true;
+  lights.spotLight.angle = Math.PI / 20;
   lights.spotLight.visible = false
   lights.spotLight.intensity = 7000
   lights.spotLight.target.position.set(0,0,0)
+  scene.fog = undefined
   PLAYER = 0
 }
 

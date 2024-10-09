@@ -17,7 +17,8 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
-const socket = io("ws://10.12.6.5:9000", {
+
+const socket = io("ws://localhost:4000", {
 	
 	// withCredentials: true,
 });
