@@ -7,7 +7,7 @@ import { instrument } from '@socket.io/admin-ui';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import cookie from 'cookie';
-import { start } from 'repl';
+
 /* VARIABLES */
 const MAX_GOALS = 2;
 
@@ -93,45 +93,11 @@ class Ball extends UserInput {
         this.boundaries = { x: 50, y: 25 };
         this.score = { player1: 0, player2: 0 };
         this.finished = false;
+        this.max_goals = MAX_GOALS
     }
-//     update(deltaTime)
-//     {
-//         const displacement = this.velocity.clone().multiplyScalar(deltaTime);
-
-//         const FinalPos = this.position.clone().add(displacement);
-//         this.boundaries = { x: 50, y: 25 };
-//         const dx = this.boundaries.x - this.radius - Math.abs(this.position.x);
-// 		const dz = this.boundaries.y - this.radius - Math.abs(this.position.z);
-
-// 		if (dx <= 0 && this.isGoal) {
-// 			// this.mesh.visible = false
-// 			this.isGoal = true;
-//             FinalPos.x = 0;
-// 			FinalPos.y = 0;
-// 			FinalPos.z = 0;
-// 			if (this.mesh.position.x > 0) {
-// 				// this.dispatchEvent({ type: 'goal', player: 'player1' })
-//                 socket.emit('goal', { player: 'player1' });
-// 			}
-// 			else {
-// 				// this.dispatchEvent({ type: 'goal', player: 'player2' })
-//                 socket.emit('goal', { player: 'player2' });
-// 			}
-//             this.isGoal = false;
-// 		}
-
-// 		if (dz <= 0) {
-// 			const z = this.mesh.position.z
-// 			FinalPos.z = (this.boundaries.y - this.radius + dz) * Math.sign(this.mesh.position.z)
-// 			this.velocity.z *= -1
-// 		}
-
-// 		// set new position
-// 		this.position.copy(FinalPos);
-//     }   
-async update(deltaTime) {
-    const displacement = this.velocity.clone().multiplyScalar(deltaTime);
-    const newPosition = this.position.clone().add(displacement);
+    async update(deltaTime) {
+        const displacement = this.velocity.clone().multiplyScalar(deltaTime);
+        const newPosition = this.position.clone().add(displacement);
     
     // Check boundaries
     if (Math.abs(newPosition.x) > this.boundaries.x - this.radius && !this.isGoal) {
@@ -142,7 +108,7 @@ async update(deltaTime) {
         if (newPosition.x > 0)
         {
             this.score.player1++;
-            if (this.score.player1 === MAX_GOALS)
+            if (this.score.player1 === this.max_goals)
             {
                 io.to(this.room).emit('endGame', 1);
                 io.to(this.room).emit('closeTheGame');
@@ -160,7 +126,7 @@ async update(deltaTime) {
         else
         {    
             this.score.player2++;
-            if (this.score.player2 === MAX_GOALS)
+            if (this.score.player2 === this.max_goals)
             {
                 io.to(this.room).emit('endGame', 2);
                 io.to(this.room).emit('closeTheGame');
@@ -303,6 +269,11 @@ class Paddle extends UserInput {
             // Determine collision side
             if (Math.abs(ball.position.x - paddleLeft) < ball.radius || 
                 Math.abs(ball.position.x - paddleRight) < ball.radius) {
+                    if (this.position.x > 0)
+                        ball.position.x -= 0.001
+                    else
+                        ball.position.x -= 0.001
+
                     io.to(this.room).emit('colision-paddle');
                 return 1; // Collision on X-axis
             } else {
@@ -403,14 +374,13 @@ const io = new Server(server, {
     cors: {
         origin: "*", 
         // origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
-        credentials: true
+        // credentials: true
     },
     pingInterval: 2000, pingTimeout: 5000,
 });
 
 var players = {};
 var balls = {};
-var positions = {};
 const centerDistanceToPaddle = 45;
 
 
@@ -504,6 +474,7 @@ async function startCountdown(room, player1, player2) {
   
 async function startGame(room, socketId, KeyPlayer1) {
     await startCountdown(room, socketId, KeyPlayer1);
+    // balls[room].ball.velocity = new Vector3(1,0,0).multiplyScalar(balls[room].ball.speed)
     balls[room].ball.velocity = new Vector3(1, 0, (Math.random() * 1).toFixed(2)).multiplyScalar(balls[room].ball.speed);
     io.to(room).emit('startGame', { player1: players[socketId], player2: players[KeyPlayer1], ball: balls[room] });
 }

@@ -18,7 +18,7 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
 
-const socket = io("ws://localhost:4000", {
+const socket = io("ws://192.168.1.37:4000", {
 	
 	// withCredentials: true,
 });
@@ -53,7 +53,7 @@ const keys = {
 
 socket.on('connect', () => {
 	console.log('Connected to server');
-	
+	// document.getElementById('socket-id').textContent = `Id: ${socket.id}`
 	// socket.emit('chat message', 'Hello from client');
 	
 	document.getElementById('countdown-container').style.visibility = 'hidden';
@@ -256,35 +256,35 @@ socket.on('connect', () => {
 		document.getElementById('up-mobile-button').style.visibility = 'visible';
 		document.getElementById('down-mobile-button').style.visibility = 'visible';
 		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
-			if (PlayerNb !== 1) return;
+			// if (PlayerNb !== 1) return;
 			socket.emit('userInput', { down: false, up: true });
 		});
 		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
-			if (PlayerNb !== 1) return;
+			// if (PlayerNb !== 1) return;
 			socket.emit('userInput', { down: false, up: false });
 		});
 		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
-			if (PlayerNb !== 1) return;
+			// if (PlayerNb !== 1) return;
 			socket.emit('userInput', { down: true, up: false });
 		});
 		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
-			if (PlayerNb !== 1) return;
+			// if (PlayerNb !== 1) return;
 			socket.emit('userInput', { down: false, up: false });
 		});
 		document.getElementById('down-mobile-button').addEventListener('touchstart', () => {
-			if (PlayerNb !== 2) return;
+			// if (PlayerNb !== 2) return;
 			socket.emit('userInput', { down: true, up: false });
 		});
 		document.getElementById('down-mobile-button').addEventListener('touchend', () => {
-			if (PlayerNb !== 2) return;
+			// if (PlayerNb !== 2) return;
 			socket.emit('userInput', { down: false, up: false });
 		});
 		document.getElementById('up-mobile-button').addEventListener('touchstart', () => {
-			if (PlayerNb !== 2) return;
+			// if (PlayerNb !== 2) return;
 			socket.emit('userInput', { down: false, up: true });
 		});
 		document.getElementById('up-mobile-button').addEventListener('touchend', () => {
-			if (PlayerNb !== 2) return;
+			// if (PlayerNb !== 2) return;
 			socket.emit('userInput', { down: false, up: false });
 		});
 	}
