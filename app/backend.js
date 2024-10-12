@@ -8,8 +8,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import cookie from 'cookie';
 import { start } from 'repl';
+import { Console } from 'console';
 /* VARIABLES */
-const MAX_GOALS = 2;
+const MAX_GOALS = 5;
 
 const sleep = async (ms)  => {
     await new Promise(resolve => {
@@ -155,7 +156,7 @@ async update(deltaTime) {
                 this.finished = true;
             }
             else
-                io.to(this.room).emit('goal_scored', 1);
+                io.to(this.room).emit('goal_scored',{PlayerNb: 1,score: this.score });
         }
         else
         {    
@@ -175,7 +176,7 @@ async update(deltaTime) {
                 this.finished = true;
             }
             else
-            io.to(this.room).emit('goal_scored', 2);
+            io.to(this.room).emit('goal_scored', {PlayerNb: 2,score: this.score });
         }
         this.isGoal = true;
         setTimeout(() => {
@@ -234,61 +235,6 @@ class Paddle extends UserInput {
         else if (this.up)
             this.position.z -=  this.keySpeed;
     }
-    // handleCollision(ball)
-    // {
-    //     const closestPoint = this.position.clone();
-    //     const scalar = new Vector3(this.width * 0.5, this.height * 0.5, this.depth * 0.5);
-    //     const min = this.position.clone().sub(scalar);
-    //     const max = this.position.clone().add(scalar);
-    //     closestPoint.clamp(
-    //         min,
-    //         max
-    //     );
-    //     const distance = ball.ball.position.distanceTo(closestPoint);
-    //     // console.log('Distance:', distance);
-    //     if (distance <= ball.ball.radius)
-    //     {
-    //         if (Math.abs(closestPoint.x - (this.position.x - this.width * 0.5)) < 0.001) {
-    //             return 1
-    //             // collisionSide = 'left';
-    //         } else if (Math.abs(closestPoint.x - (this.position.x + this.width.x * 0.5)) < 0.001) {
-    //             // collisionSide = 'right';
-    //             return 1
-    //         }
-    
-    //         if (Math.abs(closestPoint.z - (this.position.z - this.depth.z * 0.5)) < 0.001) {
-    //             // collisionSide = 'back';
-    //             ball.velocity.z *= -1;
-    //             return 2
-    //         } else if (Math.abs(closestPoint.z - (this.position.z + this.depth.z * 0.5)) < 0.001) {
-    //             // collisionSide = 'front';
-    //             ball.velocity.z *= -1;
-    //             return 2
-    //         }
-    //     }
-    //     return 0;
-    // }
-    // handleCollision(ball) {
-    //     // Example collision detection logic
-    //     const paddle = this; // Assuming the player has a paddle property
-    //     const ballPosition = ball.ball.position;
-    //     const ballVelocity = ball.ball.velocity;
-
-    //     // Check for collision with paddle
-    //     if (ballPosition.x >= paddle.position.x + paddle.width && ballPosition.x <= paddle.position.x + paddle.width &&
-    //         ballPosition.z >= paddle.position.z + paddle.depth && ballPosition.z <= paddle.position.z + paddle.depth) {
-    //         // Determine collision side
-    //         // console.log('Collision');
-    //         // if (ballVelocity.x > 0) {
-    //         //     return 1; // Collision on the x-axis
-    //         // } else if (ballVelocity.z > 0) {
-    //         //     return 2; // Collision on the z-axis
-    //         // }
-    //         return 1;
-    //     }
-
-    //     return 0; // No collision
-    // }
     handleCollision(ball) {
         const paddleLeft = this.position.x - this.width / 2;
         const paddleRight = this.position.x + this.width / 2;
@@ -313,70 +259,39 @@ class Paddle extends UserInput {
     
         return 0; // No collision
     }
-    // handleCollision(ball) {
-    //     const paddle = this; // Assuming this is the paddle
-    //     const ballPosition = ball.ball.position; // Assuming ball has a position object
-    //     const ballVelocity = ball.ball.velocity; // Assuming ball has a velocity object
     
-    //     // Check for collision with paddle
-    //     const ballWithinX = ballPosition.x >= paddle.position.x && ballPosition.x <= paddle.position.x + paddle.width;
-    //     const ballWithinZ = ballPosition.z >= paddle.position.z && ballPosition.z <= paddle.position.z + paddle.depth;
-        
-    //     // Assuming the paddle and ball are in a 3D space, check if ball is at the same Y level as the paddle
-    //     console.log('Ball:', ballPosition);
-    //     console.log('Paddle:', paddle.position);
-    //     if (ballWithinX && ballWithinZ ) {
-    //         // Detecting collision
-    //         // Now you can adjust the ball's velocity, e.g., reversing direction on the axis of the collision
-    //         if (ballVelocity.x > 0) {
-    //             return 1; // Collision on the x-axis
-    //         } else if (ballVelocity.z > 0) {
-    //             return 2; // Collision on the z-axis
-    //         }
+    handleCollision4(ball) {
+        const paddleLeft = this.position.x - this.width / 2;
+        const paddleRight = this.position.x + this.width / 2;
+        const paddleTop = this.position.z + this.depth / 2;
+        const paddleBottom = this.position.z - this.depth / 2;
     
-    //         return 1; // General collision response
-    //     }
+        const ballLeft = ball.position.x - ball.radius;
+        const ballRight = ball.position.x + ball.radius;
+        const ballTop = ball.position.z + ball.radius;
+        const ballBottom = ball.position.z - ball.radius;
     
-       
-    //     return 0; // No collision
-    // }
-
-    // handleCollision(ball) {
-    // const paddle = this; // Assuming the player has a paddle property
-    // const ballPosition = ball.ball.position;
-    // const ballVelocity = ball.ball.velocity;
-
-    // Check for collision with paddle
-//     if (ballPosition.x >= paddle.position.x && ballPosition.x <= paddle.position.x + paddle.width &&
-//         ballPosition.z >= paddle.position.z && ballPosition.z <= paddle.position.z + paddle.depth) {
-        
-//         // Determine collision side
-//         const closestPoint = {
-//             x: Math.max(paddle.position.x, Math.min(ballPosition.x, paddle.position.x + paddle.width)),
-//             z: Math.max(paddle.position.z, Math.min(ballPosition.z, paddle.position.z + paddle.depth))
-//         };
-
-//         if (Math.abs(closestPoint.x - paddle.position.x) < 0.001) {
-//             // Collision on the left side
-//             return 1;
-//         } else if (Math.abs(closestPoint.x - (paddle.position.x + paddle.width)) < 0.001) {
-//             // Collision on the right side
-//             return 1;
-//         }
-
-//         if (Math.abs(closestPoint.z - paddle.position.z) < 0.001) {
-//             // Collision on the back side
-//             return 2;
-//         } else if (Math.abs(closestPoint.z - (paddle.position.z + paddle.depth)) < 0.001) {
-//             // Collision on the front side
-//             return 2;
-//         }
-//     }
-
-//     return 0; // No collision
-// }
+        // Check for collision
+        if (ballLeft <= paddleRight && ballRight >= paddleLeft &&
+            ballBottom <= paddleTop && ballTop >= paddleBottom) {
+            
+            // Calculate the overlap on both axes
+            const overlapX = Math.min(ballRight - paddleLeft, paddleRight - ballLeft);
+            const overlapZ = Math.min(ballTop - paddleBottom, paddleTop - ballBottom);
+    
+            // Determine collision side based on the smaller overlap
+            if (overlapX < overlapZ) {
+                // Collision on X-axis
+                return 1; // Collision on X-axis
+            } else {
+                // Collision on Z-axis
+                return 2; // Collision on Z-axis
+            }
+        }
+    
+        return 0; // No collision
+    }       
 }
-
 
 
 // GameLoop();
@@ -386,23 +301,23 @@ const port = 4000;
 
 const app = express();
 
-// app.use(cors({
-//     origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
-//     credentials: true
-// }));
-
 app.use(cors({
-    origin: "*",
-    // credentials: true
+    origin: ["https://admin.socket.io", "http://10.11.250.75:5173", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+    credentials: true
 }));
+
+// app.use(cors({
+//     origin: "*",
+//     // credentials: true
+// }));
 
 
 const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*", 
-        // origin: ["https://admin.socket.io", "http://192.168.1.43:4000", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+        // origin: "*", 
+        origin: ["https://admin.socket.io", "http://10.11.250.75:5173", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
         credentials: true
     },
     pingInterval: 2000, pingTimeout: 5000,
@@ -419,8 +334,8 @@ let lastTickTime = Date.now();
 
 function GameLoop()
 {
-    console.log('NBR OF BALLS', Object.keys(balls).length)
-    console.log('NBR OF PLAYERS', Object.keys(players).length);
+    // console.log('NBR OF BALLS', Object.keys(balls).length)
+    // console.log('NBR OF PLAYERS', Object.keys(players).length);
     const currentTime = Date.now();
     const deltaTime = (currentTime - lastTickTime) / 1000; // Time difference in seconds
     lastTickTime = currentTime;
@@ -433,7 +348,7 @@ function GameLoop()
     
             if (balls[players[playerId].room])
             {
-                switch (players[playerId].handleCollision(balls[players[playerId].room].ball))
+                switch (players[playerId].handleCollision4(balls[players[playerId].room].ball))
                 {
                     case 1:
                         balls[players[playerId].room].ball.velocity.x *= -1;
@@ -487,6 +402,23 @@ function setCookie(socket)
     ]);
 }
 
+function setReconnectionCookie(socket)
+{
+    io.to(socket.id).emit('set-reconnected-cookie', [
+    {
+        name: 'id',
+        value: socket.id,
+        options: {
+            path: '/', 
+            expires: new Date(Date.now() + 240000).toUTCString(),
+            sameSite: 'None',
+            secure: true
+        }
+    },
+    ]);
+}
+
+
 async function startCountdown(room, player1, player2) {
     console.log('Start Countdown');
 
@@ -517,9 +449,9 @@ Tournaments.on('connection', (socket) => {
     })
 });
 
-const CreateTournament = io.of('/tournaments/create');
+const CreateTournamentmatch = io.of('/tournaments/create-match');
 
-CreateTournament.on('connection', (socket) => {
+CreateTournamentmatch.on('connection', (socket) => {
     console.log("create New Tournament")
 })
 
@@ -533,58 +465,78 @@ Tournaments.on('connection', (socket) => {
 io.on("connection", (socket) => {
     console.log('New Connection');
     
-   
+    let reconnected = false
     // const query = socket.handshake.query;
     // console.log('Query:', query);
-
+   
     const cookiesHeader = socket.handshake.headers.cookie;
-    if (cookiesHeader === 'string' )//&& cookiesHeader.includes('roomId'))
+    if (typeof(cookiesHeader) === 'string')//&& cookiesHeader.includes('roomId'))
     {
         const cookies = cookie.parse(cookiesHeader);
-    
+        console.log("cookies", cookies)
+        // Object.values(players).forEachi(player => console.log('room', player.room))
+	console.log(io.sockets.adapter.rooms.has(cookies.roomId))
         if (cookies.id && cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId)) //&& io.sockets.adapter.rooms.get(cookies.roomId).size < 2) //TOO BLOCK JUST TWO PLAYERS BY ROOM
         { 
-            console.log('RoomId:', cookies.roomId, 'socketId:', socket.id);
-            socket.join(cookies.roomId);
-            players.find(player => player.id === cookies.id && player.connected === false).id = socket.id;
-            socket.emit('reconnect', { player: players[socket.id], ball: balls[cookies.roomId].ball, nb: players[socket.id].nb });
+         console.log("HAS ROOM")   
+	// console.log('RoomId:', cookies.roomId, 'socketId:', socket.id);
+            // let player = Object.keys(players).find(id => {id === cookies.id && players[id].connected === false})
+            // console.log(player)
+            // player.id = socket.id
+            const playerKey = Object.keys(players).find( player => { player === cookies.id && players[player].connected === false});
+		    console.log('pkey', playerKey)
+            if (playerKey != undefined)
+            {
+                console.log(playerKey)
+                players[playerKey].id = socket.id
+                // console.log("RELOGIN")
+                reconnected = true;
+                players[playerKey].connected = true;
+                socket.join(cookies.roomId);
+                players[socket.id] = players[playerKey] 
+                socket.emit('reconnect', { player: players[socket.id], score: balls[cookies.roomId].ball.score, nb: players[socket.id].nb });
+                delete players[playerKey]
+                setReconnectionCookie(socket)
+            }
         }
     }
-    else if (Object.keys(players).length % 2 === 0)
+    if (reconnected == false)
     {
-        players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
-        players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
-        players[socket.id].room = crypto.randomUUID();
-        players[socket.id].id = socket.id;
-        players[socket.id].nb = 1;
-        players[socket.id].isWaiting = true;
-        
-        socket.join(players[socket.id].room);
-        console.log('Player:', players[socket.id].position);
+        if (Object.keys(players).length % 2 === 0)
+        {
+            players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
+            players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
+            players[socket.id].room = crypto.randomUUID();
+            players[socket.id].id = socket.id;
+            players[socket.id].nb = 1;
+            players[socket.id].isWaiting = true;
+            
+            socket.join(players[socket.id].room);
+            console.log('Player:', players[socket.id].position);
 
+        }
+        else if (Object.keys(players).length % 2 !== 0)
+        {
+            players[socket.id] = new Paddle(new Vector3(0, 0, 0),  1, 2, 6);
+            players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
+            players[socket.id].id = socket.id;
+            players[socket.id].nb = 2;
+            let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0,0,0));//new Vector3(1, 0, 0.5));
+            let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
+            players[socket.id].room = players[KeyPlayer1].room;
+            tmpBall.room = players[KeyPlayer1].room;
+            balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
+            players[KeyPlayer1].isWaiting = false;
+
+            console.log('PLAYERS:', players);
+            
+            socket.join(players[socket.id].room);
+            setCookie(socket)
+            
+            startGame(players[socket.id].room, socket.id, KeyPlayer1);
+            io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
+        }
     }
-    else if (Object.keys(players).length % 2 !== 0)
-    {
-        players[socket.id] = new Paddle(new Vector3(0, 0, 0),  1, 2, 6);
-        players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
-        players[socket.id].id = socket.id;
-        players[socket.id].nb = 2;
-        let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0,0,0));//new Vector3(1, 0, 0.5));
-        let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
-        players[socket.id].room = players[KeyPlayer1].room;
-        tmpBall.room = players[KeyPlayer1].room;
-        balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
-        players[KeyPlayer1].isWaiting = false;
-
-        console.log('PLAYERS:', players);
-        
-        socket.join(players[socket.id].room);
-        setCookie(socket)
-        
-        startGame(players[socket.id].room, socket.id, KeyPlayer1);
-        io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
-    }
-
     socket.on('userInput', (userInput) => {
         if (players[socket.id])
         {
@@ -602,16 +554,12 @@ io.on("connection", (socket) => {
         // console.log('Disconnected:', socket.id);
         if (players[socket.id])
         {
+            console.log('disconnected')
+            players[socket.id].connected = false;
             if (players[socket.id].isWaiting == true)
                 delete players[socket.id]
             
         }
-            //     const room =io.sockets.adapter.rooms.get(players[socket.id].room);
-    //    console.log('Room:', room);
-    //     if (room && room.size === 1)
-    //    {
-    //           delete balls[players[socket.id].room];
-    //    }
     });
 });
 

@@ -13,7 +13,7 @@ import Clouds from './Clouds.js';
 // import { PlayerNb } from './client.js';
 /* Variables */
 const CENTER_DISTANCE_TO_PADDLE = 45;
-var score = {player1: 0, player2: 0};
+// var score = {player1: 0, player2: 0};
 export var PLAYER = 0
 
 
@@ -200,12 +200,13 @@ export function changeCameraPosition(playerNb)
   }
 }
 
-export function goal(PlayerNb)
+export function goal(PlayerNb, score)
 {
-  if (PlayerNb === 1)
-    score.player1 += 1;
-  else if (PlayerNb === 2)
-    score.player2 += 1;
+  // if (PlayerNb === 1)
+  //   score.player1 += 1;
+  // else if (PlayerNb === 2)j
+  //   score.player2 += 1
+  console.log(score)
   document.getElementById('score').textContent = `Score ${score.player1} - ${score.player2}`;
   lights.spotLight.visible = true
   text.show();

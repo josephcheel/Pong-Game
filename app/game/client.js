@@ -18,9 +18,9 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
 
-const socket = io("ws://localhost:4000", {
+const socket = io("ws://10.11.250.75:4000", {
 	
-	// withCredentials: true,
+	withCredentials: true,
 });
 
 
@@ -64,7 +64,13 @@ socket.on('connect', () => {
 			console.log('Cookie has been set:', document.cookie);
 		}
 	});
-	
+	socket.on('set-reconnected-cookie', (cookies) => {
+		console.log('Reset cookies', cookies);
+		for (let cookie of cookies) {
+			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
+			console.log('Cookie has been set:', document.cookie);
+		}
+	});
 	socket.on('countdown-3', (players) => {
 		document.getElementById('countdown-container').style.visibility = 'visible';
 		let keys = document.getElementsByClassName('keys');
@@ -139,8 +145,20 @@ socket.on('connect', () => {
 
 	socket.on('reconnect', (data) => {
 		console.log('Reconnected to server');
+		let elements = document.getElementsByClassName('waiting-screen');
 
-		updateBallPosition(data.ball);
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].style.display = 'none';
+		}
+		animate()
+		
+		let score = document.getElementById('score');
+		score.style.visibility = 'visible';
+		score.textContent = `Score ${data.score.player1} - ${data.score.player2j}`
+		
+		console.log(data.score)
+
+		// updateBallPosition(data.ball);
 		
 	});
 
@@ -150,8 +168,8 @@ socket.on('connect', () => {
 			updatePaddlePosition(player)
 	});
 
-	socket.on('goal_scored', (PlayerNb) => {
-		goal(PlayerNb);
+	socket.on('goal_scored', (data) => {
+		goal(data.PlayerNb, data.score);
 	});
 
 	socket.on('continue_after_goal', () => {
