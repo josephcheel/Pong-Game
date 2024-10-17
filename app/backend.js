@@ -95,114 +95,78 @@ class Ball extends UserInput {
         this.score = { player1: 0, player2: 0 };
         this.finished = false;
     }
-//     update(deltaTime)
-//     {
-//         const displacement = this.velocity.clone().multiplyScalar(deltaTime);
-
-//         const FinalPos = this.position.clone().add(displacement);
-//         this.boundaries = { x: 50, y: 25 };
-//         const dx = this.boundaries.x - this.radius - Math.abs(this.position.x);
-// 		const dz = this.boundaries.y - this.radius - Math.abs(this.position.z);
-
-// 		if (dx <= 0 && this.isGoal) {
-// 			// this.mesh.visible = false
-// 			this.isGoal = true;
-//             FinalPos.x = 0;
-// 			FinalPos.y = 0;
-// 			FinalPos.z = 0;
-// 			if (this.mesh.position.x > 0) {
-// 				// this.dispatchEvent({ type: 'goal', player: 'player1' })
-//                 socket.emit('goal', { player: 'player1' });
-// 			}
-// 			else {
-// 				// this.dispatchEvent({ type: 'goal', player: 'player2' })
-//                 socket.emit('goal', { player: 'player2' });
-// 			}
-//             this.isGoal = false;
-// 		}
-
-// 		if (dz <= 0) {
-// 			const z = this.mesh.position.z
-// 			FinalPos.z = (this.boundaries.y - this.radius + dz) * Math.sign(this.mesh.position.z)
-// 			this.velocity.z *= -1
-// 		}
-
-// 		// set new position
-// 		this.position.copy(FinalPos);
-//     }   
-async update(deltaTime) {
-    const displacement = this.velocity.clone().multiplyScalar(deltaTime);
-    const newPosition = this.position.clone().add(displacement);
-    
-    // Check boundaries
-    if (Math.abs(newPosition.x) > this.boundaries.x - this.radius && !this.isGoal) {
-        // Ball hit left or right wall
-        // console.log('Goal');
-        // console.log('Position:', newPosition);
-        // console.log('room:', this.room);
-        if (newPosition.x > 0)
-        {
-            this.score.player1++;
-            if (this.score.player1 === MAX_GOALS)
+    async update(deltaTime) {
+        const displacement = this.velocity.clone().multiplyScalar(deltaTime);
+        const newPosition = this.position.clone().add(displacement);
+        
+        // Check boundaries
+        if (Math.abs(newPosition.x) > this.boundaries.x - this.radius && !this.isGoal) {
+            // Ball hit left or right wall
+            // console.log('Goal');
+            // console.log('Position:', newPosition);
+            // console.log('room:', this.room);
+            if (newPosition.x > 0)
             {
-                io.to(this.room).emit('endGame', 1);
-                io.to(this.room).emit('closeTheGame');
-                io.to(this.room).socketsLeave(this.room);
-                for (let id in players)
+                this.score.player1++;
+                if (this.score.player1 === MAX_GOALS)
                 {
-                    if (players[id].room == this.room)
-                        delete players[id];
+                    io.to(this.room).emit('endGame', 1);
+                    io.to(this.room).emit('closeTheGame');
+                    io.to(this.room).socketsLeave(this.room);
+                    for (let id in players)
+                    {
+                        if (players[id].room == this.room)
+                            delete players[id];
+                    }
+                    this.finished = true;
                 }
-                this.finished = true;
+                else
+                    io.to(this.room).emit('goal_scored',{PlayerNb: 1,score: this.score });
             }
             else
-                io.to(this.room).emit('goal_scored',{PlayerNb: 1,score: this.score });
-        }
-        else
-        {    
-            this.score.player2++;
-            if (this.score.player2 === MAX_GOALS)
-            {
-                io.to(this.room).emit('endGame', 2);
-                io.to(this.room).emit('closeTheGame');
-                io.to(this.room).socketsLeave(this.room);
-                for (let id in players)
+            {    
+                this.score.player2++;
+                if (this.score.player2 === MAX_GOALS)
                 {
-                    if (players[id].room == this.room)
-                        delete players[id];
-                    // if (balls[this.room])
-                        // delete balls[this.room];
+                    io.to(this.room).emit('endGame', 2);
+                    io.to(this.room).emit('closeTheGame');
+                    io.to(this.room).socketsLeave(this.room);
+                    for (let id in players)
+                    {
+                        if (players[id].room == this.room)
+                            delete players[id];
+                        // if (balls[this.room])
+                            // delete balls[this.room];
+                    }
+                    this.finished = true;
                 }
-                this.finished = true;
+                else
+                io.to(this.room).emit('goal_scored', {PlayerNb: 2,score: this.score });
             }
-            else
-            io.to(this.room).emit('goal_scored', {PlayerNb: 2,score: this.score });
+            this.isGoal = true;
+            setTimeout(() => {
+                newPosition.x = 0;
+                newPosition.y = 0;
+                newPosition.z = 0;
+                this.velocity.x *= -1;
+                this.isGoal = false;
+                this.position.copy(newPosition);
+                io.to(this.room).emit('continue_after_goal');
+            }, 2000);
         }
-        this.isGoal = true;
-        setTimeout(() => {
-            newPosition.x = 0;
-            newPosition.y = 0;
-            newPosition.z = 0;
-            this.velocity.x *= -1;
-            this.isGoal = false;
-            this.position.copy(newPosition);
-            io.to(this.room).emit('continue_after_goal');
-        }, 2000);
+
+        if (Math.abs(newPosition.z) > this.boundaries.y - this.radius) {
+            // Ball hit top or bottom wall
+            this.velocity.z *= -1;
+            newPosition.z = Math.sign(newPosition.z) * (this.boundaries.y - this.radius);
+            if (this.room !== undefined)
+                io.to(this.room).emit('colision-wall');
+        }
+
+        this.position.copy(newPosition);
     }
-
-    if (Math.abs(newPosition.z) > this.boundaries.y - this.radius) {
-        // Ball hit top or bottom wall
-        this.velocity.z *= -1;
-        newPosition.z = Math.sign(newPosition.z) * (this.boundaries.y - this.radius);
-        if (this.room !== undefined)
-            io.to(this.room).emit('colision-wall');
-    }
-
-    this.position.copy(newPosition);
-
- 
 }
-}
+
 class Paddle extends UserInput {
     constructor(position, width, height, depth)
     {
@@ -293,10 +257,6 @@ class Paddle extends UserInput {
     }       
 }
 
-
-// GameLoop();
-
-// const app = express();
 const port = 4000;
 
 const app = express();
@@ -339,8 +299,6 @@ function GameLoop()
     const currentTime = Date.now();
     const deltaTime = (currentTime - lastTickTime) / 1000; // Time difference in seconds
     lastTickTime = currentTime;
-    // console.log('GAME LOOP');
-    // console.log('Ball length:', Object.keys(balls).length);
     for (let playerId in players)
         {
             players[playerId].keyHandler();
@@ -374,10 +332,11 @@ function GameLoop()
 
 setInterval(GameLoop, 15);
 
-function setCookie(socket)
+function setCookie(socket, KeyPlayer1)
 {
+    console.log('socketid', socket.id)
+    console.log('KEypalyer1', KeyPlayer1)
     io.to(players[socket.id].room).emit('set-cookie', [
-        
     {
         name: 'roomId',
         value: players[socket.id].room,
@@ -388,34 +347,53 @@ function setCookie(socket)
             sameSite: 'None', // Required for cross-site cookies
             secure: true // Required for SameSite=None
         } // Set expiration, path, etc.
-    },
-    {
-        name: 'id',
-        value: socket.id,
-        options: {
-            path: '/', 
-            expires: new Date(Date.now() + 240000).toUTCString(),
-            sameSite: 'None',
-            secure: true
+    }])
+    socket.emit('set-cookie', [
+        {
+            name: 'id',
+            value: socket.id,
+            options: {
+                path: '/', 
+                expires: new Date(Date.now() + 240000).toUTCString(),
+                sameSite: 'None',
+                secure: true
+            }
         }
-    },
+    ]);
+    io.to(KeyPlayer1).emit('set-cookie', [
+        {
+            name: 'id',
+            value: KeyPlayer1,
+            options: {
+                path: '/', 
+                expires: new Date(Date.now() + 240000).toUTCString(),
+                sameSite: 'None',
+                secure: true
+            }
+        }
     ]);
 }
 
 function setReconnectionCookie(socket)
 {
-    io.to(socket.id).emit('set-reconnected-cookie', [
-    {
+    const cookieOptions = {
+        path: '/',
+        expires: new Date(Date.now() + 240000).toUTCString(),
+        sameSite: 'None',
+        secure: true,
+    };
+
+    const cookie = {
         name: 'id',
         value: socket.id,
-        options: {
-            path: '/', 
-            expires: new Date(Date.now() + 240000).toUTCString(),
-            sameSite: 'None',
-            secure: true
-        }
-    },
-    ]);
+        options: cookieOptions,
+    };
+
+    try {
+        socket.emit('set-reconnected-cookie', [cookie]);
+    } catch (error) {
+        console.error('Error setting reconnection cookie:', error);
+    }
 }
 
 
@@ -474,29 +452,23 @@ io.on("connection", (socket) => {
     {
         const cookies = cookie.parse(cookiesHeader);
         console.log("cookies", cookies)
-        // Object.values(players).forEachi(player => console.log('room', player.room))
-	console.log(io.sockets.adapter.rooms.has(cookies.roomId))
         if (cookies.id && cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId)) //&& io.sockets.adapter.rooms.get(cookies.roomId).size < 2) //TOO BLOCK JUST TWO PLAYERS BY ROOM
         { 
-         console.log("HAS ROOM")   
-	// console.log('RoomId:', cookies.roomId, 'socketId:', socket.id);
-            // let player = Object.keys(players).find(id => {id === cookies.id && players[id].connected === false})
-            // console.log(player)
-            // player.id = socket.id
+             console.log("HAS ROOM")   
             const playerKey = Object.keys(players).find( player => { player === cookies.id && players[player].connected === false});
-		    console.log('pkey', playerKey)
+            // console.log("PPPLAYERS", players)
+            console.log('pkey', playerKey)
             if (playerKey != undefined)
             {
                 console.log(playerKey)
-                players[playerKey].id = socket.id
-                // console.log("RELOGIN")
                 reconnected = true;
+                players[playerKey].id = ssocket.id
                 players[playerKey].connected = true;
-                socket.join(cookies.roomId);
                 players[socket.id] = players[playerKey] 
+                socket.join(cookies.roomId);
+                setReconnectionCookie(socket)
                 socket.emit('reconnect', { player: players[socket.id], score: balls[cookies.roomId].ball.score, nb: players[socket.id].nb });
                 delete players[playerKey]
-                setReconnectionCookie(socket)
             }
         }
     }
@@ -531,7 +503,7 @@ io.on("connection", (socket) => {
             console.log('PLAYERS:', players);
             
             socket.join(players[socket.id].room);
-            setCookie(socket)
+            setCookie(socket, KeyPlayer1)
             
             startGame(players[socket.id].room, socket.id, KeyPlayer1);
             io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });

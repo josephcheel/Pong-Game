@@ -18,7 +18,7 @@ import { changeCameraPosition, updatePaddlePosition, updateBallPosition, animate
 // import { camera } from './index.js';
 // const socket = io('ws://192.168.1.43:4000', {
 
-const socket = io("ws://10.11.250.75:4000", {
+const socket = io("ws://localhost:4000", {
 	
 	withCredentials: true,
 });
@@ -56,13 +56,14 @@ socket.on('connect', () => {
 	
 	// socket.emit('chat message', 'Hello from client');
 	
-	document.getElementById('countdown-container').style.visibility = 'hidden';
 	socket.on('set-cookie', (cookies) => {
 		console.log('Setting cookies', cookies);
 		for (let cookie of cookies) {
 			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
 			console.log('Cookie has been set:', document.cookie);
 		}
+		// console.log("HIICOOOK")
+		// setIdCookie()
 	});
 	socket.on('set-reconnected-cookie', (cookies) => {
 		console.log('Reset cookies', cookies);
@@ -70,6 +71,7 @@ socket.on('connect', () => {
 			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
 			console.log('Cookie has been set:', document.cookie);
 		}
+		// setIdCookie()
 	});
 	socket.on('countdown-3', (players) => {
 		document.getElementById('countdown-container').style.visibility = 'visible';
