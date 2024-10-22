@@ -54,24 +54,13 @@ const keys = {
 socket.on('connect', () => {
 	console.log('Connected to server');
 	
-	// socket.emit('chat message', 'Hello from client');
-	
 	socket.on('set-cookie', (cookies) => {
 		console.log('Setting cookies', cookies);
 		for (let cookie of cookies) {
-			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
-			console.log('Cookie has been set:', document.cookie);
+			if (cookie.name && cookie.value)
+				document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
 		}
-		// console.log("HIICOOOK")
-		// setIdCookie()
-	});
-	socket.on('set-reconnected-cookie', (cookies) => {
-		console.log('Reset cookies', cookies);
-		for (let cookie of cookies) {
-			document.cookie = `${cookie.name}=${cookie.value}; path=${cookie.options.path}; expires=${cookie.options.expires}`;
-			console.log('Cookie has been set:', document.cookie);
-		}
-		// setIdCookie()
+		document.cookie = `playerId=${socket.id}; path=/;`;
 	});
 	socket.on('countdown-3', (players) => {
 		document.getElementById('countdown-container').style.visibility = 'visible';
@@ -156,7 +145,7 @@ socket.on('connect', () => {
 		
 		let score = document.getElementById('score');
 		score.style.visibility = 'visible';
-		score.textContent = `Score ${data.score.player1} - ${data.score.player2j}`
+		score.textContent = `Score ${data.score.player1} - ${data.score.player2}`
 		
 		console.log(data.score)
 

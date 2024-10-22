@@ -183,6 +183,8 @@ class Paddle extends UserInput {
         this.keySpeed = 0.9;
         this.nb = undefined;
         this.connected = true;
+        this.matchId = null;
+        this.tournamentId = null;
     }
 
     PaddleLimits() {
@@ -260,9 +262,10 @@ class Paddle extends UserInput {
 const port = 4000;
 
 const app = express();
+const ORIGIN_IP = process.env.ORIGIN_IP || 'localhost';
 
 app.use(cors({
-    origin: ["https://admin.socket.io", "http://10.11.250.75:5173", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+    origin: ["https://admin.socket.io", `http://${ORIGIN_IP}:5173`, `http://${ORIGIN_IP}:5174`],
     credentials: true
 }));
 
@@ -277,7 +280,7 @@ const server = createServer(app);
 const io = new Server(server, {
     cors: {
         // origin: "*", 
-        origin: ["https://admin.socket.io", "http://10.11.250.75:5173", "http://localhost:4000", "http://localhost:5173", "http://192.168.1.42:5173", "http://192.168.1.48:5173"],
+        origin: ["https://admin.socket.io", `http://${ORIGIN_IP}:5173`, `http://${ORIGIN_IP}:5174`],
         credentials: true
     },
     pingInterval: 2000, pingTimeout: 5000,
@@ -332,69 +335,45 @@ function GameLoop()
 
 setInterval(GameLoop, 15);
 
-function setCookie(socket, KeyPlayer1)
-{
-    console.log('socketid', socket.id)
-    console.log('KEypalyer1', KeyPlayer1)
-    io.to(players[socket.id].room).emit('set-cookie', [
-    {
+function setCookie(socket) {
+    const roomIdCookie = {
         name: 'roomId',
         value: players[socket.id].room,
         options: { 
             path: '/', 
             expires: new Date(Date.now() + 240000).toUTCString(),
-            // httpOnly: true, // Optional, helps with security
-            sameSite: 'None', // Required for cross-site cookies
-            secure: true // Required for SameSite=None
-        } // Set expiration, path, etc.
-    }])
-    socket.emit('set-cookie', [
-        {
-            name: 'id',
-            value: socket.id,
-            options: {
-                path: '/', 
-                expires: new Date(Date.now() + 240000).toUTCString(),
-                sameSite: 'None',
-                secure: true
-            }
+            sameSite: 'None', 
+            secure: true 
         }
-    ]);
-    io.to(KeyPlayer1).emit('set-cookie', [
-        {
-            name: 'id',
-            value: KeyPlayer1,
-            options: {
-                path: '/', 
-                expires: new Date(Date.now() + 240000).toUTCString(),
-                sameSite: 'None',
-                secure: true
-            }
-        }
-    ]);
+    };
+    // Broadcast the roomId to all players in the room
+    io.to(players[socket.id].room).emit('set-cookie', [roomIdCookie]);
+
+    // Send the unique id cookie to only the player (no broadcasting)
+    // socket.emit('set-cookie', [idCookie]);
 }
 
-function setReconnectionCookie(socket)
-{
-    const cookieOptions = {
-        path: '/',
-        expires: new Date(Date.now() + 240000).toUTCString(),
-        sameSite: 'None',
-        secure: true,
-    };
+// function setReconnectionCookie(socket)
+// {
+//     const cookieOptions = {
+//         path: '/',
+//         expires: new Date(Date.now() + 240000).toUTCString(),
+//         sameSite: 'None',
+//         secure: true,
+//     };
 
-    const cookie = {
-        name: 'id',
-        value: socket.id,
-        options: cookieOptions,
-    };
+//     const cookie = {
+//         name: 'id',
+//         value: socket.id,
+//         options: cookieOptions,
+//     };
 
-    try {
-        socket.emit('set-reconnected-cookie', [cookie]);
-    } catch (error) {
-        console.error('Error setting reconnection cookie:', error);
-    }
-}
+//     try {
+//         socket.emit('set-reconnected-cookie', [cookie]);
+//     } catch (error) {
+//         console.error('Error setting reconnection cookie:', error);
+//     }
+// }
 
 
 async function startCountdown(room, player1, player2) {
@@ -418,97 +397,129 @@ async function startGame(room, socketId, KeyPlayer1) {
     io.to(room).emit('startGame', { player1: players[socketId], player2: players[KeyPlayer1], ball: balls[room] });
 }
 
-const Tournaments = io.of('/tournaments');
-
-Tournaments.on('connection', (socket) => {
-    console.log("new user connected to Tournaments")
-    socket.on('disconnect', () => {
-        console.log("user disconnedted");
-    })
-});
-
-const CreateTournamentmatch = io.of('/tournaments/create-match');
-
-CreateTournamentmatch.on('connection', (socket) => {
-    console.log("create New Tournament")
-})
-
-Tournaments.on('connection', (socket) => {
-    console.log("new user connected to Tournaments")
-    socket.on('disconnect', () => {
-        console.log("user disconnedted");
-    })
-});
-
 io.on("connection", (socket) => {
     console.log('New Connection');
     
     let reconnected = false
-    // const query = socket.handshake.query;
-    // console.log('Query:', query);
-   
     const cookiesHeader = socket.handshake.headers.cookie;
-    if (typeof(cookiesHeader) === 'string')//&& cookiesHeader.includes('roomId'))
+    if (cookiesHeader)
     {
         const cookies = cookie.parse(cookiesHeader);
-        console.log("cookies", cookies)
-        if (cookies.id && cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId)) //&& io.sockets.adapter.rooms.get(cookies.roomId).size < 2) //TOO BLOCK JUST TWO PLAYERS BY ROOM
+        if (cookies.playerId && cookies.roomId && io.sockets.adapter.rooms.has(cookies.roomId))
         { 
-             console.log("HAS ROOM")   
-            const playerKey = Object.keys(players).find( player => { player === cookies.id && players[player].connected === false});
-            // console.log("PPPLAYERS", players)
-            console.log('pkey', playerKey)
-            if (playerKey != undefined)
+            if (players[cookies.playerId] && players[cookies.playerId].connected === false)
             {
-                console.log(playerKey)
                 reconnected = true;
-                players[playerKey].id = ssocket.id
-                players[playerKey].connected = true;
-                players[socket.id] = players[playerKey] 
+                players[cookies.playerId].id = socket.id
+                players[cookies.playerId].connected = true;
+                players[socket.id] = players[cookies.playerId];
                 socket.join(cookies.roomId);
-                setReconnectionCookie(socket)
+                setCookie(socket);
+                console.log('Reconnected:', socket.id);
                 socket.emit('reconnect', { player: players[socket.id], score: balls[cookies.roomId].ball.score, nb: players[socket.id].nb });
-                delete players[playerKey]
+                delete players[cookies.playerId]
             }
         }
     }
     if (reconnected == false)
     {
-        if (Object.keys(players).length % 2 === 0)
-        {
-            players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
-            players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
-            players[socket.id].room = crypto.randomUUID();
+        const query = socket.handshake.query;
+        const matchId = query['match-id'] || null;       // match-id if provided
+        const tournamentId = query['tournament-id'] || null; // tournament-id if provided
+        
+        players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
+        players[socket.id].id = socket.id;
+        players[socket.id].matchId = matchId;
+        players[socket.id].tournamentId = tournamentId;
+
+        let pairedPlayerId = null;
+        for (let id in players) {
+            if (id !== socket.id) {
+                const otherPlayer = players[id];
+                if (otherPlayer.isWaiting && otherPlayer.matchId === matchId && otherPlayer.tournamentId === tournamentId) {
+                    pairedPlayerId = id;
+                    break;
+                }
+            }
+        }
+
+        if (pairedPlayerId) {
+            // Pair the players in the same match/tournament
+            const room = players[pairedPlayerId].room;
+            players[socket.id].room = room;
+            players[socket.id].nb = 2;
+            players[pairedPlayerId].isWaiting = false;
             players[socket.id].id = socket.id;
+            players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
+
+            // Create a ball for the game
+            let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+            tmpBall.room = room;
+            balls[room] = { id: socket.id, room: room, ball: tmpBall };
+
+            // Join the room for both players
+            socket.join(room);
+            setCookie(socket, pairedPlayerId);
+
+            // Start the game
+            startGame(room, socket.id, pairedPlayerId);
+            io.to(room).emit('startGame', {
+                player1: players[pairedPlayerId],
+                player2: players[socket.id],
+                ball: balls[room]
+            });
+
+            // console.log(`Match started between Player ${pairedPlayerId} and Player ${socket.id} in room: ${room}`);
+
+        } else {
+            // No available player with the same match/tournament ID, make this player wait
+            const room = crypto.randomUUID(); // Generate a random room ID
+            players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
+            players[socket.id].id = socket.id;
+            players[socket.id].room = room;
             players[socket.id].nb = 1;
             players[socket.id].isWaiting = true;
-            
-            socket.join(players[socket.id].room);
-            console.log('Player:', players[socket.id].position);
 
-        }
-        else if (Object.keys(players).length % 2 !== 0)
-        {
-            players[socket.id] = new Paddle(new Vector3(0, 0, 0),  1, 2, 6);
-            players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
-            players[socket.id].id = socket.id;
-            players[socket.id].nb = 2;
-            let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0,0,0));//new Vector3(1, 0, 0.5));
-            let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
-            players[socket.id].room = players[KeyPlayer1].room;
-            tmpBall.room = players[KeyPlayer1].room;
-            balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
-            players[KeyPlayer1].isWaiting = false;
-
-            console.log('PLAYERS:', players);
-            
-            socket.join(players[socket.id].room);
-            setCookie(socket, KeyPlayer1)
-            
-            startGame(players[socket.id].room, socket.id, KeyPlayer1);
-            io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
+            socket.join(room);
         }
     }
+    //     if (Object.keys(players).length % 2 === 0)
+    //     {
+    //         players[socket.id] = new Paddle(new Vector3(0, 0, 0), 1, 2, 6);
+    //         players[socket.id].position = new Vector3(centerDistanceToPaddle, 0, 0);
+    //         players[socket.id].room = crypto.randomUUID();
+    //         players[socket.id].id = socket.id;
+    //         players[socket.id].nb = 1;
+    //         players[socket.id].isWaiting = true;
+            
+    //         socket.join(players[socket.id].room);
+    //         console.log('Player:', players[socket.id].position);
+
+    //     }
+    //     else if (Object.keys(players).length % 2 !== 0)
+    //     {
+    //         players[socket.id] = new Paddle(new Vector3(0, 0, 0),  1, 2, 6);
+    //         players[socket.id].position = new Vector3(-centerDistanceToPaddle, 0, 0);
+    //         players[socket.id].id = socket.id;
+    //         players[socket.id].nb = 2;
+    //         let tmpBall = new Ball(new Vector3(0, 0, 0), new Vector3(0,0,0));//new Vector3(1, 0, 0.5));
+    //         let KeyPlayer1 = Object.keys(players).find(key => players[key].isWaiting === true);
+    //         players[socket.id].room = players[KeyPlayer1].room;
+    //         tmpBall.room = players[KeyPlayer1].room;
+    //         balls[players[KeyPlayer1].room] = {id: socket.id, room: players[KeyPlayer1].room, ball: tmpBall};
+    //         players[KeyPlayer1].isWaiting = false;
+
+    //         console.log('PLAYERS:', players);
+            
+    //         socket.join(players[socket.id].room);
+    //         setCookie(socket, KeyPlayer1)
+            
+    //         startGame(players[socket.id].room, socket.id, KeyPlayer1);
+    //         io.to(players[socket.id].room).emit('startGame', { player1: players[socket.id], player2: players[KeyPlayer1], ball: balls[players[KeyPlayer1].room] });
+    //     }
+    // }
+
+
     socket.on('userInput', (userInput) => {
         if (players[socket.id])
         {
