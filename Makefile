@@ -15,23 +15,36 @@ ERROR_COLOR		=	\033[1;91m
 WARN_COLOR		=	\033[1;93m
 BLUE_COLOR		=	\033[1;94m
 
-DOCKER_COMPOSE = ./docker-compose.yml
+DOCKER_COMPOSE_FILE = ./docker-compose.yml
+
+
+
+# Define the docker compose command and check if it is available
+DOCKER_COMPOSE_CMD := $(shell command -v docker-compose >/dev/null 2>&1 && echo docker-compose || (docker compose version >/dev/null 2>&1 && echo docker compose))
+
+ifndef DOCKER_COMPOSE_CMD
+    $(error "Neither docker-compose nor docker compose is available.")
+endif
 
 all: up
 
+check_compose:
+	
 up:
-	@echo "$(OK_COLOR)Docker compose up [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) up -d
+	@echo "$(OK_COLOR)Docker compose up [$(DOCKER_COMPOSE_FILE)]$(NO_COLOR)"
+	@${DOCKER_COMPOSE_CMD} -f $(DOCKER_COMPOSE_FILE) up -d
+	@echo 
+	@echo "$(NO_COLOR)App running on http://localhost:3000 by default (you can change it in docker-compose)$(NO_COLOR)"
 	
 down-all:
-	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) down -v --remove-orphans --rmi all
+	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE_FILE)]$(NO_COLOR)"
+	@${DOCKER_COMPOSE_CMD} -f $(DOCKER_COMPOSE_FILE) down -v --remove-orphans --rmi all
 down:
-	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE)]$(NO_COLOR)"
-	@docker-compose -f $(DOCKER_COMPOSE) down -v
+	@echo "$(ERROR_COLOR)Docker compose down and removes everything [$(DOCKER_COMPOSE_FILE)]$(NO_COLOR)"
+	@${DOCKER_COMPOSE_CMD} -f $(DOCKER_COMPOSE_FILE) down -v
 
 re-img:
-	@docker-compose -f $(DOCKER_COMPOSE) up -d --build
+	@${DOCKER_COMPOSE_CMD} -f $(DOCKER_COMPOSE_FILE) up -d --build
 
 clean-cache:
 	@echo "$(ERROR_COLOR)Cleaning Docker cache$(NO_COLOR)"
