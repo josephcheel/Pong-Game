@@ -39,5 +39,31 @@ clean-cache:
 
 re : down up
 
+app-dev:
+	@echo "$(OK_COLOR)Installing dependencies...$(NO_COLOR)"
+	@cd app && npm install
+	@echo "$(OK_COLOR)Starting development server...$(NO_COLOR)"
+	@cd app && npm run dev
 
-.PHONY: all up down down-all re-img clean-cache
+clean-app-dev:
+	@echo "$(ERROR_COLOR)Cleaning app dependencies...$(NO_COLOR)"
+	@cd app && rm -rf node_modules
+
+help:
+	@echo "$(BLUE_COLOR)Usage:$(NO_COLOR)"
+	@echo "  make [command]"
+	@echo ""
+	@echo "$(BLUE_COLOR)Commands:$(NO_COLOR)"
+	@echo "  help        Show this help message"
+	@echo "**************************** DOCKERIZAED DEPLOY *************************************"
+	@echo "  up                Start the application[default]"
+	@echo "  down              Stop the application"
+	@echo "  re                Restart the application"
+	@echo "  re-img            Restart the application with rebuild"
+	@echo "  clean-cache       Clean Docker cache"
+	@echo "**************************** DEVELOPMENT DEPLOY ****************************************"
+	@echo "  app-dev           Start the application in development mode"
+	@echo "  clean-app-dev     Clean the application dependencies"
+	
+
+.PHONY: all up down down-all re-img clean-cache re app-dev
