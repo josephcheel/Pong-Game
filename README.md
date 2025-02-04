@@ -13,11 +13,8 @@
 > A **web game** inspired by the Atari Pong, but with a 3D twist – Built with **Three.js** for Two Players on One Keyboard!
 
 <div align="center">
-<!--<img align="center"  width="600" src="https://github.com/josephcheel/Pong-Game/blob/main/readme/pong_game.mov">-->
-<video width="600" controls>
-  <source src="https://github.com/josephcheel/Pong-Game/blob/main/readme/pong_game.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<img align="center"  width="600" src="https://github.com/josephcheel/Pong-Game/blob/main/readme/pong_game.gif">
+
 </div>
 <br>
 <br>
