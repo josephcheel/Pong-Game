@@ -68,7 +68,7 @@ help:
 	@echo ""
 	@echo "$(BLUE_COLOR)Commands:$(NO_COLOR)"
 	@echo "  help        Show this help message"
-	@echo "**************************** DOCKERIZAED DEPLOY *************************************"
+	@echo "**************************** DOCKERIZED DEPLOY *************************************"
 	@echo "  up                Start the application[default]"
 	@echo "  down              Stop the application"
 	@echo "  re                Restart the application"
