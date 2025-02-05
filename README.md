@@ -31,8 +31,6 @@ This project is focused on developing a **3D web-based version of the classic At
   * JavaScript for game logic and interactivity.  
   * HTML/CSS for UI elements (if applicable).  
 
-## Build Instructions
-> Compilation is managed through the Makefile rules.
 
 ## Required Software  
 
@@ -42,4 +40,27 @@ To compile and run the project, ensure you have the following installed:
 * **Node.js & npm** – Required for package management and running a local development server.  
 * **Three.js** – The core library for 3D rendering (installed via npm or CDN).  
 * **A modern web browser** – Such as Chrome or Firefox, with WebGL support
+
+Use make help to chekc the commands availeable, there are two the Development section and the Dockerized section
+
+- This means you can run `make` followed by one of the listed commands to perform specific actions related to your project.  
+
+## Build Instructions
+> Compilation is managed through the Makefile rules.
+
+### **DOCKERIZED DEPLOY**  
+These commands are for managing the application using Docker:  
+
+- **`make up`** – Starts the application using Docker (this is the default command if no other option is specified).  
+- **`make down`** – Stops the application running in Docker.  
+- **`make re`** – Restarts the application in Docker (useful if you need to restart without rebuilding the image).  
+- **`make re-img`** – Restarts the application in Docker, but also rebuilds the Docker image, ensuring that any changes are applied.  
+- **`make clean-cache`** – Cleans the Docker cache, useful for freeing up space or clearing outdated images.  
+
+### **DEVELOPMENT DEPLOY**  
+These commands are for running the application in a local development environment:  
+
+- **`make app-dev`** – Starts the application in development mode, typically with features like hot reloading or debug logging enabled.  
+- **`make clean-app-dev`** – Cleans the application's dependencies, likely removing node_modules or similar build artifacts to ensure a fresh start for development.  
+
 
