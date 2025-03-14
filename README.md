@@ -9,7 +9,14 @@
 
 <div align="center">
   <img align="center"  width="800" src="https://github.com/josephcheel/Pong-Game/blob/main/readme/pong_game.gif">
+  
 </div>
+<div align="center">
+  <img align="center" width="800" 
+       src="https://github.com/josephcheel/Pong-Game/blob/main/readme/loading.png" 
+       onload="this.src='https://imgs.search.brave.com/IfsEz9cmU1TdfG5835zHiPf_8i9VaqJl4PnP5um6uBk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YTIuZ2lwaHkuY29t/L21lZGlhL2VteVNn/V28waUJLV3FuaTF3/Ui9naXBoeS5naWY_/Y2lkPTc5MGI3NjEx/cXhwZ2E5cHdlOG1y/a2J3MXY3eWVuZGVv/aWF0ZjlkNWEzbGFy/MWo0byZlcD12MV9n/aWZzX3NlYXJjaCZy/aWQ9Z2lwaHkuZ2lm/JmN0PWc.gif';">
+</div>
+
 <br>
 <br>
 
