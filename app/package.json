@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "build": "vite build && cp -r assets dist/ && mkdir -p dist/game && cp -r game dist/",
+    "build": "vite build && cp -r assets dist/ && mkdir -p dist/game && cp -r game dist/ && cp style.css dist/",
     "preview": "vite preview",
     "host": "vite --host 0.0.0.0"
   },
