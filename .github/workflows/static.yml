@@ -21,9 +21,9 @@ jobs:
       - name: Deploy to Portfolio Repo
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          repository-name: yourusername/yourusername.github.io
+          repository-name: josephcheel/josephcheel.github.io
           token: ${{ secrets.GH_TOKEN }}
           branch: gh-pages
-          folder: dist  # Change this if your build outputs elsewhere
+          folder: app/dist  # Change this if your build outputs elsewhere
           target-folder: Pong-Game  # Deploys to yourusername.github.io/Pong-Game
           clean: true  # Removes old files before deploying
